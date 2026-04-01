@@ -1,0 +1,190 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Billing;
+use App\Models\Categories;
+use App\Models\Desk;
+use App\Models\Foods;
+use App\Models\Restro;
+use App\Models\Sales;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
+
+class OrderingController extends Controller
+{
+    public function index(Request $request)
+    {
+        $cate = Categories::with('menu')->get();
+        $afood = Foods::with('cate')
+            ->orderBy('cate_id')
+//            ->orderBy('LENGTH(title)', 'ASC')
+            ->orderBy('sort')
+            ->get();
+        $food = [];
+        $isExist = [];
+        $arCateid = $cate->pluck('id')->toArray();
+        foreach ($afood as $f){
+            $id = $f->cate_id;
+            if(!in_array($id,$arCateid))continue;
+            if(!in_array($id,$isExist)){
+                $isExist[] = $id;
+                $f->link = $id;
+            }
+            $food[] = $f;
+        }
+        // sts = 0: no order 1:pre-order 2:confirm/cooking 3:ready delivery 4:to pay
+        if(count($request->all())>0) {
+//            $getdesk = $request->getdesk ?? false;
+//            if ( $getdesk === false || $getdesk !== 'true') return abort(404);
+            $table = Desk::all();
+            if ( ($request->getdesk??false) === 'true') return response($table);
+            if ( ($request->getpos??false) === 'true')return response(compact('cate','food','table'));
+            return abort(404);
+        }
+        $comp = Restro::first();
+        return view('ordering.index',compact('cate','food','comp'));
+//        return Redirect::route('ordering.table');
+    }
+
+    public function store(Request $request){
+        $tableid = $request->table;
+        $desk = Desk::find($tableid);
+        if(!$desk) return abort(404);
+        $bill = $request->bill;
+        $restro = Restro::first();
+        // pre-order
+        $aBill = [
+            'desk_id'=>$tableid,
+            'order_cnt'=>$bill['tcount'],
+            'subtotal'=>(float)$bill['total'],
+        ];
+        $blid = $desk->order_id;
+        $aBill['grandtotal'] = (float) $aBill['subtotal'];
+        if($restro->gst > 0)$aBill['gst'] = ((float)$aBill['subtotal'] * (float)$restro->gst) / 100;
+        if($restro->sst > 0)$aBill['sst'] = (((float)$aBill['subtotal'] * (float)$restro->sst) / 100);
+        if($restro->rest > 0)$aBill['rest'] = ((float)$aBill['subtotal'] * (float)$restro->rest) / 100;
+//        return response($aBill);
+        if($aBill['gst']??false) $aBill['grandtotal'] += (float) $aBill['gst'];
+        if($aBill['sst']??false) $aBill['grandtotal'] += (float) $aBill['sst'];
+        if($aBill['rest']??false) $aBill['grandtotal'] += (float) $aBill['rest'];
+        //
+        if($blid==0){
+            DB::transaction(function() use (&$restro, &$aBill, &$dbBill, &$blid, &$desk, $bill) {
+                $restro = Restro::lockForUpdate()->first();
+                $restro->rseq = (int)$restro->rseq + 1;
+                $restro->oseq = (int)$restro->oseq + 1;
+                $aBill['rcptno'] = Str::of($restro->rseq)->padLeft(4,'0');
+                $aBill['orderno'] = Str::of($restro->oseq)->padLeft(4,'0');
+                $dbBill = Billing::create($aBill);
+                $restro->save();
+                $blid = $dbBill->id;
+                $desk->order_id = $blid;
+                $desk->sts = $bill['sts'];
+                $desk->odrtm = date('Y-m-d H:i:s');
+            });
+        } else {
+            $dbBill = Billing::where('id',$blid)->first();
+            $dbBill->update($aBill);
+        }
+        $desk->odrcnt = $bill['tcount'];
+        $desk->save();
+
+        $keyCate = Categories::all()->pluck('id')->toArray();
+        $order = $request->item;
+        foreach ($order as $s){
+            if(!in_array($s[1],$keyCate)) continue;
+            $ss = [
+                'bill_id'=>$blid,
+                'food_id'=>$s[0],
+                'cate_id'=>$s[1],
+                'price'=>$s[2],
+                'tax'=>$s[3],
+                'name'=>$s[4],
+                'qty' =>$s[6],
+                'amount'=>$s[7],
+            ];
+            // always create new order event same table same bill same food
+            Sales::create($ss);
+        }
+
+        // re-update billing
+        $sales = Sales::where('bill_id',$blid)->get();
+        $sCount = $sales->sum('qty');//$sales->count();
+        $dbBill->order_cnt = $sCount;
+        $dbBill->subtotal = $sales->sum('amount');
+        $dbBill->grandtotal = (float) $dbBill->subtotal;
+        if($restro->gst > 0) $dbBill->gst = ($dbBill->subtotal * $restro->gst) / 100;
+        if($restro->sst > 0) $dbBill->sst = ($dbBill->subtotal * $restro->sst) / 100;
+        if($restro->rest > 0) $dbBill->rest = ($dbBill->subtotal * $restro->rest) / 100;
+        $dbBill->grandtotal += (float) $dbBill->gst;
+        $dbBill->grandtotal += (float) $dbBill->sst;
+        $dbBill->grandtotal += (float) $dbBill->rest;
+        $dbBill->save();
+        $desk->odrcnt = $sCount;
+        $desk->save();
+        $restro->ordersts = 1;
+        $restro->paysts = 1;
+        $restro->save();
+
+        return response()->json(['success'=>'ok','data'=>$dbBill,'desk'=>$desk->name,'items'=>Sales::where('bill_id',$blid)->get()]);
+    }
+    public function status(){
+        $comp = Restro::first();
+        if($comp->ordersts == 0) return response(0);
+        $comp->ordersts = 0;
+        $comp->save();
+        return response(1);
+    }
+    public function paysts(){
+        $comp = Restro::first();
+        if($comp->paysts == 0) return response(0);
+        $comp->paysts = 0;
+        $comp->save();
+        return response(1);
+    }
+
+    public function delorder(Sales $sales){
+        $idbil = $sales->bill_id;
+        if($sales->qty == 1) {
+            $sales->delete();
+//            return response()->json(['success'=>'ok']);
+        } else {
+            $sales->qty = ($sales->qty*1) - 1;
+            $sales->amount = (float)$sales->price * $sales->qty;
+            $sales->save();
+        }
+        $desk = [];
+        $bill = Billing::find($idbil);
+        $iddesk = $bill->desk_id;
+        $item = $bill->item;
+        if($item->count() > 0){
+            $sCount = $item->sum('qty');//$sales->count();
+            $subtot = $item->sum('amount');
+            $bill->order_cnt = $sCount;
+            $bill->subtotal = $subtot;
+            $bill->grandtotal = (float) $bill->subtotal;
+            $bill->save();
+            $desk = ['odrcnt'=>$sCount];
+        } else {
+            $bill->delete();
+            $desk = ['order_id'=>0,'odrcnt'=>0,'sts'=>0];
+            Restro::first()->update(['ordersts'=>1,'paysts'=>1]);
+        }
+        Desk::where('id',$iddesk)->update($desk);
+        return response()->json(['success'=>'ok','count'=>$item->count()]);
+    }
+
+    public function markPrinted(Billing $bill, Request $request){
+        $salesIds = $request->sales_ids ?? [];
+        if(empty($salesIds)) {
+            return response()->json(['success'=>'ok','message'=>'No items to mark']);
+        }
+        Sales::whereIn('id', $salesIds)
+            ->where('bill_id', $bill->id)
+            ->update(['print' => now()]);
+        return response()->json(['success'=>'ok','marked'=>count($salesIds)]);
+    }
+}

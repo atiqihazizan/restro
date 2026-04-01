@@ -1,0 +1,471 @@
+<div class="sales d-flex">
+	<div class="sidebar sales-sidebar pt-4">
+		<div class="d-flex flex-column">
+			<a href="#tabs-sale" data-fun-name="initSales" class="report-nav">销售量</a>
+			<a href="#tabs-daily" data-fun-name="initDaily" class="report-nav">日常的</a>
+			<a href="#tabs-monthly" data-fun-name="initMonthly" class="report-nav">月收入</a>
+			<a href="#tabs-yearly" data-fun-name="initYearly" class="report-nav">年收入</a>
+		</div>
+	</div>
+	<div class="sales-container flex-fill">
+		<div class="d-none report-page animation faster fade-in" id="tabs-sale">
+			<div class="sales-title">
+				<h3 class="fw-500 mt-1 mb-0">Sales</h3>
+				<div class="search position-relative">
+					<input type="date" id="viewdailysale" class="form-control form-control-lg bg-success rounded-pill" value="{{date('Y-m-d')}}">
+					{{--<i class="fa fa-search position-absolute" style="left: 20px; top: 35%"></i>
+                    <input type="text" class="form-control-lg rounded-pill ps-5 border-0" placeholder="Search" style="background-color: #26272c">--}}
+				</div>
+			</div>
+			<div class="sales-content">
+				<div class="table-responsive">
+					<table class="table table-borderless table-sales">
+						<thead>
+							<tr class="thead-tr fw-500">
+								<td class="text-center" style="width: 133px">Receipt Num</td>
+								<td class="text-end">Amount</td>
+								<td class="text-center">Items</td>
+								<td class="text-center">Table</td>
+								{{--<td class="text-start">Payment</td>--}}
+								<td class="text-center" style="width: 140px">Actions</td>
+							</tr>
+						</thead>
+						<tbody id="sales_list_data"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="d-none report-page animation faster fade-in" id="tabs-daily">
+			<div class="sales-title">
+				<div class="d-flex">
+					<h3 class="fw-500 mt-1 mb-0">Daily</h3>
+					<button class="btn btn-success ms-3 rounded-pill fs-6" data-print-daily><i class="fa fa-print"></i> Print</button>
+				</div>
+				<div class="search position-relative">
+					<input type="date" id="viewdaily" class="form-control form-control-lg bg-success rounded-pill" value="{{date('Y-m-d')}}">
+					{{--<i class="fa fa-search position-absolute" style="left: 20px; top: 35%"></i>
+                    <input type="text" class="form-control-lg rounded-pill ps-5 border-0" placeholder="Search" style="background-color: #26272c">--}}
+				</div>
+			</div>
+			<div class="sales-content">
+				<div class="table-responsive">
+					<table class="table table-borderless table-sales">
+						<thead>
+							<tr class="thead-tr fw-500">
+								<td class="text-start">Category Name</td>
+								<td class="text-center">Quantity</td>
+								<td class="text-end">Amount</td>
+								{{--<td class="text-center" style="width: 140px">Actions</td>--}}
+							</tr>
+						</thead>
+						<tbody id="sales_daily_data"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="d-none report-page animation faster fade-in" id="tabs-monthly">
+			<div class="sales-title">
+				<div class="d-flex">
+					<h3 class="fw-500 mt-1 mb-0">Monthly</h3>
+					<button class="btn btn-success ms-3 rounded-pill fs-6" data-print-monthly><i class="fa fa-print"></i> Print</button>
+				</div>
+				<div class="search position-relative">
+					<input type="month" id="viewmonthly" class="form-control form-control-lg bg-success rounded-pill" value="{{date('Y-m')}}">
+				</div>
+			</div>
+			<div class="sales-content">
+				<div class="table-responsive">
+					<table class="table table-borderless table-sales">
+						<thead>
+							<tr class="thead-tr fw-500">
+								<td class="text-start">Category Name</td>
+								<td class="text-center">Quantity</td>
+								<td class="text-end">Amount</td>
+								{{--<td class="text-center" style="width: 140px">Actions</td>--}}
+							</tr>
+						</thead>
+						<tbody id="sales_monthly_data"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="d-none report-page animation faster fade-in" id="tabs-yearly">
+			<div class="sales-title">
+				<div class="d-flex">
+					<h3 class="fw-500 mt-1 mb-0">Yearly</h3>
+					<button class="btn btn-success ms-3 rounded-pill fs-6" data-print-yearly><i class="fa fa-print"></i> Print</button>
+				</div>
+				<div class="search position-relative">
+					<select id="viewyearly" class="form-control form-control-lg bg-success rounded-pill">
+						<option value="">Select year</option>
+						@for($i=2020; $i<=date('Y');$i++)
+							<option value="{{$i}}" @if($i==date('Y')) selected @endif>{{$i}}</option>
+							@endfor
+					</select>
+				</div>
+			</div>
+			<div class="sales-content">
+				<div class="table-responsive">
+					<table class="table table-borderless table-sales">
+						<thead>
+							<tr class="thead-tr fw-500">
+								<td class="text-start">Category Name</td>
+								<td class="text-center">Quantity</td>
+								<td class="text-end">Amount</td>
+								{{--<td class="text-center" style="width: 140px">Actions</td>--}}
+							</tr>
+						</thead>
+						<tbody id="sales_yearly_data"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@push('modal')
+<div id="sale_receipt"
+	class="sidenav gray-black"
+	role="navigation"
+	data-scroll-container="#receipt-container"
+	data-width="359.05511811" {{-- 1px = 37.795275591 cm --}}
+	data-backdrop-class="bg-gray-white"
+	data-content="main"
+	data-right="true">
+
+	<div class="receipt-header_top px-3"></div>
+	<div class="receipt-header sidenav-receipt sidenav-receipt-top px-3 d-flex">
+		<h3 class="fw-600 py-4 flex-fill">Receipt</h3>
+		<div class="right-side px-4 py-2 pe-0">
+			<a class="btn fs-3 text-success" data-printout><i class="fa fa-print"></i></a>
+		</div>
+	</div>
+	<div id="receipt-container" class="sidenav-receipt sidenav-receipt-container bg-white py-5 px-0">
+		<link rel="stylesheet" href="{{ URL::asset('css/print.css') }}">
+		<div class="receipt-sale-frame">
+			<h4 class="receipt-sale-name">{{$comp->name}}</h4>
+			<h5 class="receipt-sale-logotext">{{$comp->logotxt}}</h5>
+			<span class="receipt-sale-addr" style="font-size:8pt;">{!! $comp->addr !!}</span>
+			<hr class="separator">
+			<div sales-receipt style="display: none">
+				<div class="receipt-sale-info">
+					<table style="margin-right: 0; padding-right: 0; width: 100%">
+						<tr>
+							<td class="receipt-sale-paid_at paid_at" colspan="3" style="font-size: 8pt"></td>
+						</tr>
+						<tr>
+							<td class="receipt-sale-table_no table_no" style="font-size: 8pt"></td>
+							<td class="receipt-sale-receipt_no receipt_no" style="font-size:8pt;text-align: right"></td>
+						</tr>
+					</table>
+				</div>
+				<hr class="receipt-sale-separator">
+				<table class="receipt-sale-item">
+					<tbody class="clone-row"></tbody>
+				</table>
+				<hr class="receipt-sale-separator" style="margin: 0; margin-top: .7rem;margin-bottom: .7rem;">
+				<table class="receipt-sale-infopaid to-hide">
+					<tr>
+						<td style="text-align: left; font-size:9pt;">Subtotal</td>
+						<td class="subtotal" style="font-size:9pt">0.00</td>
+					</tr>
+					<tr>
+						<td style="text-align: left; font-size:9pt;">Tax</td>
+						<td class="tax" style="font-size:9pt">0.00</td>
+					</tr>
+					<tr>
+						<td style="text-align: left; font-size:9pt;">Total</td>
+						<td class="total" style="font-size:9pt">0.00</td>
+					</tr>
+					<tr>
+						<td style="text-align: left; font-size:9pt;">Paid</td>
+						<td class="paid" style="font-size:9pt">0.00</td>
+					</tr>
+					<tr>
+						<td style="text-align: left; font-size:9pt;">Change</td>
+						<td class="bal" style="font-size:9pt">0.00</td>
+					</tr>
+				</table>
+				<hr class="receipt-sale-separator to-hide">
+				<p class="to-hide" style="width: 100%; text-align: center">Thank You</p>
+			</div>
+			<div report-receipt style="display: none">
+				<div class="receipt-sale-info">
+					<table style="margin-right: 0; padding-right: 0; width: 100%">
+						<tr>
+							<td class="receipt-sale-date_at date_at" style="font-size: 9pt;"></td>
+						</tr>
+					</table>
+				</div>
+				<hr class="receipt-sale-separator">
+				<table class="receipt-sale-item">
+					<tbody></tbody>
+				</table>
+				<hr class="separator">
+				<table class="receipt-sale-infopaid">
+					<tr>
+						<td style="text-align: left; font-size:9pt;">Subtotal</td>
+						<td class="subtotal" style="font-size:9pt;">0.00</td>
+					</tr>
+					<tr>
+						<td style="text-align: left; font-size:9pt;">Tax</td>
+						<td class="tax" style="font-size:9pt;">0.00</td>
+					</tr>
+					<tr>
+						<td style="text-align: left; font-size:9pt;">Total</td>
+						<td class="total" style="font-size:9pt;">0.00</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+@endpush
+@push('javascript')
+<script>
+	const tax = '{{ $comp->sst }}' * 1.0
+	var mdb_salexpen = function() {
+		const pageSale = document.getElementById('salexpen')
+		const modalPrintEl = document.getElementById('sale_receipt')
+		const modalPrint = mdb.Sidenav.getInstance(modalPrintEl);
+		const dataSale = {}
+		const dataRcpt = {}
+
+		async function receiptPaid(data) {
+			let el = modalPrintEl.querySelector('.receipt-sale-frame div[sales-receipt]')
+			let reportEl = modalPrintEl.querySelector('.receipt-sale-frame div[report-receipt]')
+			let item = data.item
+			let subt = 0
+			let toHide = el.querySelectorAll('.to-hide');
+			el.querySelector('.receipt-sale-item tbody').innerHTML = item.map((r, n) => {
+				subt += r.amount
+				return `<tr>
+                        <td class="itm" style="text-align:top;font-size:11pt; width: 50%; text-align: left;">${r.name}</td>
+                        <td class="qnt" style="text-align:top; font-size:11pt; width: 15px">${r.qty}</td>
+                        <td class="prc" style="text-align:top; font-size:11pt; width: 100px;text-align: right">${currency(r.price)}</td>
+                        <td class="amt" style="text-align:top; font-size:11pt; width: 130px; text-align: right">${currency(r.amount)}</td>
+                    </tr>`
+			}).join('')
+
+			reportEl.style.display = 'none'
+			el.style.display = 'block'
+			el.querySelector('.paid_at').innerHTML = data.paid_at
+			el.querySelector('.table_no').innerHTML = data.desk.name
+			el.querySelector('.receipt_no').innerHTML = 'Inv #:' + data.rcptno
+			el.querySelector('.subtotal').innerHTML = data.subtotal
+
+			toHide.forEach(e => e.classList.add('d-none'));
+			if (data.subtotal) toHide.forEach(e => (e.classList.contains('d-none')) && (e.classList.remove('d-none')));
+			if (data.rest) el.querySelector('.tax').innerHTML = currency(data.rest)
+			if (data.grandtotal) el.querySelector('.total').innerHTML = currency(data.grandtotal)
+			if (data.paid) el.querySelector('.paid').innerHTML = currency(data.paid)
+			if (data.change) el.querySelector('.bal').innerHTML = currency(data.change)
+		}
+		async function initSales() {
+			let find = pageSale.querySelector('#viewdailysale').value;
+			let res = await axios(APP_URL + 'counter/sales/?find=' + find)
+			let data = res.data ?? []
+			let tbody = pageSale.querySelector('#sales_list_data');
+			tbody.innerHTML = data.map((s, n) => {
+				let trClass = 'bg-odd';
+				if ((n % 2) > 0) trClass = 'bg-event'
+				dataSale[s.id] = s;
+				dataSale[s.id].paid_at = moment(s).format('DD MMM YYYY hh:mm A');
+				return `<tr class="${trClass}">
+                            <td class="text-center">${s.rcptno}</td>
+                            <td class="text-end">RM ${ currency(s.grandtotal)}</td>
+                            <td class="text-center">${s.order_cnt}</td>
+                            <td class="text-center">${s.desk.code}</td>
+                            <!--<td class="text-start">Cash</td>-->
+                            <td class="text-center">
+                                <button class="btn bg-black btn-sm px-2 rounded-5 text-success" data-view-receipt idx="${s.id}"><i class="fa fa-print"></i></button>
+                                <!--<button class="btn bg-black btn-sm px-2 rounded-5 text-danger"><i class="fa fa-trash"></i></button>
+                                <button class="btn bg-black btn-sm px-2 rounded-5 text-primary"><i class="fa fa-pencil-alt"></i></button>-->
+                            </td>
+                        </tr>`
+			}).join('')
+
+			tbody.querySelectorAll('[data-view-receipt]').forEach(p => {
+				p.addEventListener('click', function(e) {
+					e.preventDefault()
+					let id = this.getAttribute('idx')
+					let data = dataSale[id]
+					receiptPaid(data).then(() => modalPrintEl.querySelector('[data-printout]').click())
+				})
+			})
+		}
+		async function initDaily() {
+			let find = pageSale.querySelector('#viewdaily').value;
+			let res = await axios(APP_URL + 'counter/daily/?find=' + find)
+			let data = res.data ?? []
+			let tbody = pageSale.querySelector('#sales_daily_data');
+			let man = data.man ?? {};
+			let det = data.det ?? [];
+			let total = 0;
+			dataRcpt.data = det
+			dataRcpt.man = man
+			dataRcpt.date = moment(find).format('DD MMM YYYY')
+			tbody.innerHTML = det.map((s, n) => {
+				let trClass = 'bg-odd';
+				if ((n % 2) > 0) trClass = 'bg-event'
+				total += s.amount.replace(',', '') * 1
+				return `<tr class="${trClass}">
+                            <td class="text-start">${s.cate}</td>
+                            <td class="text-center">${s.qnt}</td>
+                            <td class="text-end">RM ${s.amount}</td>
+                            <!--<td class="text-center">
+                                <button class="btn bg-black btn-sm px-2 rounded-5 text-success"><i class="fa fa-print"></i></button>
+                                <button class="btn bg-black btn-sm px-2 rounded-5 text-danger"><i class="fa fa-trash"></i></button>
+                                <button class="btn bg-black btn-sm px-2 rounded-5 text-primary"><i class="fa fa-pencil-alt"></i></button>
+                            </td>-->
+                        </tr>`
+			}).join('')
+			tbody.innerHTML += `
+                <tr>
+                  <th colspan="2"><h4>Total</h4></th>
+                  <th class="text-end"><h4>RM ${currency(total)}</h4></th>
+                </tr>
+                <tr>
+                  <th colspan="2"><h4>Tax Amount</h4></th>
+                  <th class="text-end"><h4>RM ${currency(man.tax)}</h4></th>
+                </tr>
+                <tr>
+                  <th colspan="2"><h4>Grand Total</h4></th>
+                  <th class="text-end"><h4>RM ${currency(man.grandtotal)}</h4></th>
+                </tr>
+            `
+		}
+		async function initMonthly() {
+			let find = pageSale.querySelector('#viewmonthly').value;
+			let res = await axios(APP_URL + 'counter/monthly/?find=' + find)
+			let data = res.data ?? []
+			let tbody = pageSale.querySelector('#sales_monthly_data');
+			let man = data.man ?? {};
+			let det = data.det ?? [];
+			let total = 0
+			dataRcpt.data = det
+			dataRcpt.man = man
+			dataRcpt.date = moment(find).format('MMMM YYYY')
+			tbody.innerHTML = det.map((s, n) => {
+				let trClass = 'bg-odd';
+				if ((n % 2) > 0) trClass = 'bg-event'
+				total += s.amount.replace(',', '') * 1
+				return `<tr class="${trClass}">
+                            <td class="text-start">${s.cate}</td>
+                            <td class="text-center">${s.qnt}</td>
+                            <td class="text-end">RM ${s.amount}</td>
+                        </tr>`
+			}).join('')
+			tbody.innerHTML += `
+                <tr>
+                  <th colspan="2"><h4>Total</h4></th>
+                  <th class="text-end"><h4>RM ${currency(total)}</h4></th>
+                </tr>
+            `
+		}
+		async function initYearly() {
+			let find = pageSale.querySelector('#viewyearly').value;
+			let res = await axios(APP_URL + 'counter/yearly/?find=' + find)
+			let data = res.data ?? []
+			let tbody = pageSale.querySelector('#sales_yearly_data');
+			let man = data.man ?? {};
+			let det = data.det ?? [];
+			let total = 0;
+			dataRcpt.data = det
+			dataRcpt.man = man
+			dataRcpt.date = find
+			tbody.innerHTML = det.map((s, n) => {
+				let trClass = 'bg-odd';
+				total += s.amount.replace(',', '') * 1
+				if ((n % 2) > 0) trClass = 'bg-event'
+				return `<tr class="${trClass}">
+                            <td class="text-start">${s.cate}</td>
+                            <td class="text-center">${s.qnt}</td>
+                            <td class="text-end">RM ${s.amount}</td>
+                        </tr>`
+			}).join('')
+			tbody.innerHTML += `
+                <tr>
+                  <th colspan="2"><h4>Total</h4></th>
+                  <th class="text-end"><h4>RM ${currency(total)}</h4></th>
+                </tr>
+            `
+		}
+
+		function reportPreview() {
+			let receiptSale = modalPrintEl.querySelector('.receipt-sale-frame div[sales-receipt]')
+			let reportEl = modalPrintEl.querySelector('.receipt-sale-frame div[report-receipt]')
+			let data = dataRcpt
+			let item = dataRcpt.data
+			let subt = 0;
+			let tota = 0;
+			if (item.length == 0) return;
+
+			reportEl.style.display = 'block'
+			receiptSale.style.display = 'none'
+			reportEl.querySelector('.receipt-sale-item tbody').innerHTML = item.map((r, n) => {
+				subt += r.amount.replace(',', '') * 1
+				// let total = reportEl.querySelector('.total').innerHTML.replace(',','') * 1
+				// total += (r.amount.replace(',','') * 1)
+				// reportEl.querySelector('.total').innerHTML = currency(total);
+				return `<tr>
+                        <td class="itm" style="font-size:11pt;text-align: left">${r.cate}(${r.qnt})</td>
+                        <td class="prc" style="font-size:11pt;">${r.amount}</td>
+                    </tr>`
+			}).join('')
+			tota = subt + parseFloat(data.man.tax)
+			reportEl.querySelector('.date_at').innerHTML = 'Report at : ' + data.date
+			reportEl.querySelector('.subtotal').innerHTML = currency(data.man.subtotal)
+			reportEl.querySelector('.tax').innerHTML = currency(data.man.tax)
+			reportEl.querySelector('.total').innerHTML = currency(tota);
+			// modalPrint.show()
+			modalPrintEl.querySelector('[data-printout]').click();
+		}
+
+		function initPrintPreview() {
+			pageSale.querySelector('[data-print-daily]').addEventListener('click', function(e) {
+				e.preventDefault()
+				reportPreview()
+			})
+			pageSale.querySelector('[data-print-monthly]').addEventListener('click', function(e) {
+				// let html = pageSale.querySelector('#sales_monthly_data').innerHTML
+				e.preventDefault()
+				reportPreview()
+			})
+			pageSale.querySelector('[data-print-yearly]').addEventListener('click', function(e) {
+				e.preventDefault()
+				reportPreview()
+			})
+			modalPrintEl.querySelector('[data-printout]').addEventListener('click', function(e) {
+				let html = modalPrintEl.querySelector('#receipt-container').innerHTML
+				e.preventDefault()
+				printJS(html, 'Receipt Sales')
+				modalPrint.hide();
+			})
+		}
+		return {
+			init: function() {
+				initTabs('.report-nav', '.report-page', function(e) {
+					let funName = e.getAttribute('data-fun-name')
+					if (funName === 'initSales') initSales()
+					if (funName === 'initDaily') initDaily()
+					if (funName === 'initMonthly') initMonthly()
+					if (funName === 'initYearly') initYearly()
+				})
+				pageSale.querySelector('#viewdailysale').addEventListener('change', initSales)
+				pageSale.querySelector('#viewdaily').addEventListener('change', initDaily)
+				pageSale.querySelector('#viewmonthly').addEventListener('change', initMonthly)
+				pageSale.querySelector('#viewyearly').addEventListener('change', initYearly)
+				initPrintPreview()
+			},
+			receipt: receiptPaid,
+			sales: async function(data) {
+				receiptPaid(data).then(() => {
+					let html = modalPrintEl.querySelector('#receipt-container').innerHTML
+					printJS(html, 'Receipt Sales')
+				})
+			},
+		}
+	}()
+	mdb_salexpen.init();
+</script>
+@endpush

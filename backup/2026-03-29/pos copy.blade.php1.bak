@@ -1,0 +1,409 @@
+<div class="pos d-flex">
+	<div class="pos-sidebar p-0">
+		<div class="text-start d-flex">
+			<h3 class="w-100 bg-black mb-0 p-3 text-start flex-fill" data-table-name>&nbsp;</h3>
+			<div class="d-flex">
+				<button class="btn  fs-2" title="Print Receipt"><i class="fa fa-print text-primary" print-receipt></i></button>
+				<button class="btn fs-2 ms-2" title="Print to kichen"><i class="fa fa-print text-danger" print-tokichen></i></button>
+			</div>
+		</div>
+		<table class="table table-borderless table-flush table-to-pay header">
+			<thead>
+				<tr class="thead-tr fw-500">
+					<th class="item">Item</th>
+					<th class="price">Price</th>
+					<th class="qnt">Qnt</th>
+					<th class="total">Total($)</th>
+				</tr>
+			</thead>
+			<tbody class="billing-master d-none">
+				<tr>
+					<td class="item">blabla</td>
+					<td class="price">0.00</td>
+					<td class="qnt">0</td>
+					<td class="total">0.00</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="empty" style="overflow-y: auto; height: calc(100vh - 299px)">
+			<table class="table table-borderless table-flush table-to-pay body">
+				<tbody class="billing"></tbody>
+			</table>
+		</div>
+		<table class="table table-borderless table-flush table-to-pay footer">
+			<tfoot>
+				<tr class="gray-black net">
+					<th>total</th>
+					<th data-subt>0.00</th>
+				</tr>
+			</tfoot>
+		</table>
+		<div class="button-pay d-flex">
+			{{-- <a class="btn btn-primary btn-lg text-capitalize nav-link-page" href="javascript:void(0)" id="take-order">Take Order</a>--}}
+			<button class="btn btn-primary btn-lg text-capitalize" id="take-order" disabled>Take Order</button>
+			<button class="btn btn-success btn-lg text-capitalize" id="btn_to_pay" disabled>Pay</button>
+		</div>
+	</div>
+	<div id="pos-desk" class="flex-fill">
+		<div class="post-table">
+			<div class="pos-content-food" load-table-data="true"></div>
+		</div>
+	</div>
+</div>
+@push('modal')
+<div class="modal top fade" id="calculate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 684px">
+		<div class="modal-content rounded-9">
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-6">
+						<table class="table table-borderless pos-calculate mt-3 ms-4">
+							<tr>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="7">7</button></td>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="8">8</button></td>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="9">9</button></td>
+							</tr>
+							<tr>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="4">4</button></td>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="5">5</button></td>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="6">6</button></td>
+							</tr>
+							<tr>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="1">1</button></td>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="2">2</button></td>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="3">3</button></td>
+							</tr>
+							<tr>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="c">c</button></td>
+								<td class=""><button type="button" class="btn btn-num" data-num-val="0">0</button></td>
+								<td class=""><button type="button" class="btn btn-num" data-num-val=".">.</button></td>
+							</tr>
+						</table>
+					</div>
+					<div class="col-md-6">
+						<table class="table table-borderless mt-3 table-amount">
+							<tr>
+								<th class="fs-2 pt-0">Tax</th>
+								<th class="fs-2 pt-0 text-right text-black-50 input-active" data-tax>0.00</th>
+							</tr>
+							<tr>
+								<th class="fs-2 pt-0">Total</th>
+								<th class="fs-2 pt-0 text-right"><span class="text-black-50" data-total>0.00</span></th>
+							</tr>
+							<tr>
+								<th class="fs-2 pt-0">Paid</th>
+								<th class="fs-2 pt-0 text-right"><span class="text-black-50" data-pay>0.00</span></th>
+							</tr>
+							<tr>
+								<th class="fs-2 pt-0">Balance</th>
+								<th class="fs-2 pt-0 text-right"><span class="text-black-50" data-bal>0.00</span></th>
+							</tr>
+							<tr>
+								<td colspan="2" class="pt-0"><button class="btn btn-success btn-lg btn-block" to-ledger>Enter</button></td>
+							</tr>
+							<tr>
+								<td colspan="2" class="pt-0"><button class="btn btn-danger btn-lg btn-block" data-dismiss="modal">Cancel</button></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+@endpush
+@push('javascript')
+<script>
+	var intervalCount = 0;
+	var mdb_table = function() {
+		var modalPay;
+		var pagePos;
+		var keyPay = '';
+		var bill = {}
+		var masterEl;
+		var modalEl;
+
+		async function initTable() {
+			let res = await axios.get(APP_URL + 'ordering/?getpos=true')
+			let data = res.data;
+			let table = data.table ?? [];
+			let tableEl = pagePos.querySelector('[load-table-data]')
+			let bgcolor = [
+				'border border-success', // no-order
+				'bg-success border border-success', // pre-order
+				'bg-danger border border-danger', // confirm/cooking
+				'bg-danger border border-danger', // ready delivery
+				'bg-danger border border-danger', // ready to pay
+			];
+			// pagePos.querySelector('[data-table-name]').innerHTML = '&nbsp;'
+			tableEl.innerHTML = table.map((t, n) => {
+				return `<a idx="${ t.id }" oid="${t.order_id}" tname="${t.name}" class="w-100 rounded-9 view-order">
+                        <div class="card ${ bgcolor[t.sts] } text-capitalize rounded-9">
+                            <div class="card-body py-3 text-center">
+                                <h4 class="card-title d-flex justify-content-between fw-600 fs-4">${ t.name }</h4>
+                            </div>
+                        </div>
+                    </a>`
+			}).join('')
+			tableEl.querySelectorAll('.view-order').forEach(function(b) {
+				b.addEventListener('dblclick', async function(e) {
+					e.preventDefault()
+					pagePos.querySelector('#take-order').click();
+				})
+				b.addEventListener('click', async function() {
+					let oid = this.getAttribute('oid') * 1
+					let idx = this.getAttribute('idx') * 1
+					let tname = this.getAttribute('tname')
+					pagePos.querySelector('[data-table-name]').innerHTML = tname
+					pagePos.querySelector('#take-order').removeAttribute('disabled')
+					document.querySelector('meta[name="table"]').setAttribute('content', idx)
+
+					if (oid == 0) return resetBtnPay()
+					bill.oid = oid
+					drawReceipt()
+				})
+			})
+		}
+		async function drawReceipt() {
+			let res = await axios.get(APP_URL + 'counter/' + bill.oid + '/pos')
+			let data = res.data ?? []
+			let item = data.item;
+			let subt = data.subt;
+			let arry = {}
+			let tbody = pagePos.querySelector('.table-to-pay.body tbody.billing');
+			let html = item.map(d => {
+				let el = masterEl.cloneNode(true)
+				let tr = el.querySelector('tr')
+				if (!arry[d.food_id]) arry[d.food_id] = [d.food_id, d.cate_id, '', '', '', '', 0]
+				arry[d.food_id][4] = d.name
+				arry[d.food_id][6] += d.qty
+
+				el.querySelector('.item').innerHTML = d.name;
+				el.querySelector('.price').textContent = d.price;
+				el.querySelector('.qnt').textContent = d.qty;
+				el.querySelector('.total').textContent = d.amount;
+
+				tr.setAttribute('row-item-idx', d.id)
+				return el.innerHTML
+			}).join('')
+			data.paid_at = ''
+			data.rcptno = ''
+			data.subtotal = 0
+			mdb_ordering.tokichen(data.desk.name, Object.values(arry))
+			mdb_salexpen.receipt(data);
+
+			pagePos.querySelector('.table-to-pay.footer [data-subt]').textContent = subt;
+			bill.total = subt.replace(',', '') * 1;
+
+			pagePos.querySelector('[data-table-name]').innerHTML = data.desk.name
+			pagePos.querySelector('#btn_to_pay').removeAttribute('disabled')
+			tbody.innerHTML = html
+			tbody.querySelectorAll('[row-item-idx]').forEach(function(r) {
+				r.addEventListener('dblclick', function(e) {
+					let idx = this.getAttribute('row-item-idx')
+					e.preventDefault()
+					axios.delete(APP_URL + 'ordering/' + idx).then(function(res) {
+						let data = res.data;
+						if (data.success ?? false) {
+							if (data.count > 0) return drawReceipt();
+							return resetBtnPay()
+						}
+					})
+				})
+			})
+
+		}
+
+		function initPayment() {
+			let modalCalc = document.getElementById('calculate')
+			let inputTotal = modalCalc.querySelector('[data-total]')
+			let inputPay = modalCalc.querySelector('[data-pay]')
+			let inputBal = modalCalc.querySelector('[data-bal]')
+			let inputTax = modalCalc.querySelector('[data-tax]')
+			let inputAmt;
+			modalCalc.querySelectorAll('.btn-num').forEach(function(b) {
+				b.addEventListener('click', function(e) {
+					let v = this.getAttribute('data-num-val')
+					let num = 0
+
+					e.preventDefault()
+					// re-call element
+					inputAmt = modalCalc.querySelector('.table-amount .input-active')
+					inputPay = modalCalc.querySelector('[data-pay]')
+					inputTax = modalCalc.querySelector('[data-tax]')
+
+					if (v === 'c') keyPay = ''
+					if (v === '.') {
+						if (keyPay.toString().lastIndexOf('.') != -1) return;
+					}
+					keyPay += v.toString()
+					num = keyPay * 1
+					if (inputAmt.hasAttribute('data-tax')) {
+						num = Math.round(keyPay * 1)
+						if (isNaN(num)) {
+							num = 0;
+							keyPay = '';
+						}
+						if (num > 100) num = 100
+						bill.tax = (bill.total * num) / 100;
+						bill.taxnum = num;
+						inputAmt.textContent = currency(bill.tax)
+						inputTax = modalCalc.querySelector('[data-tax]')
+					}
+					if (inputAmt.hasAttribute('data-pay')) {
+						if (isNaN(num)) {
+							num = 0;
+							keyPay = '';
+						}
+						if (Math.round(num) > 2000) return // limit payment
+						bill.amt = num;
+						inputAmt.textContent = currency(bill.amt)
+						inputPay = modalCalc.querySelector('[data-pay]')
+					}
+					bill.net = bill.total + bill.tax;
+					inputTotal.textContent = currency(bill.net)
+
+					bill.bal = bill.net - bill.amt
+					if (bill.amt == 0) bill.bal = 0
+					inputBal.textContent = currency(bill.bal.toString())
+				})
+			})
+			pagePos.querySelector('#btn_to_pay').addEventListener('click', function(e) {
+				e.preventDefault()
+				resetPanelPay()
+				modalPay.show();
+			})
+			modalCalc.querySelector('[to-ledger]').addEventListener('click', function(e) {
+				e.preventDefault()
+				let dp = {
+					paid: bill,
+					_token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+				}
+				if (bill.amt == 0) return;
+				if (bill.bal > 0) return;
+				axios.post(APP_URL + 'counter/' + bill.oid + '/pos', dp).then(res => {
+					let data = res.data;
+					modalPay.hide();
+					mdb_salexpen.sales(data.receipt);
+					if (!data.success) {
+						console.log(data);
+						return;
+					}
+					resetBtnPay()
+					resetPanelPay()
+				}).catch(e => console.error(e.message))
+			})
+
+			function resetPanelPay() {
+				keyPay = ''
+				inputTotal.textContent = bill.total.toFixed(2);
+				inputPay.textContent = '0.00';
+				inputTax.textContent = '0.00';
+				inputBal.textContent = '0.00';
+				bill.amt = 0
+				bill.bal = 0
+				bill.tax = 0
+				bill.net = 0;
+				bill.taxnum = 0;
+
+				modalEl.querySelectorAll('.input-active').forEach(e => e.classList.remove('input-active'))
+				modalEl.querySelector('[data-tax]').classList.add('input-active')
+			}
+		}
+
+		function resetBtnPay() {
+			// pagePos.querySelector('[data-table-name]').innerHTML = ''
+			pagePos.querySelector('.table-to-pay.body tbody.billing').innerHTML = '';
+			pagePos.querySelector('#btn_to_pay').setAttribute('disabled', 'disabled')
+			pagePos.querySelector('.table-to-pay.footer [data-subt]').textContent = '0.00';
+
+			return false;
+		}
+		async function subscribe() {
+			let url = APP_URL + "ordering/status"
+			let sec = 1000
+			try {
+				let response = await axios(url);
+				if (response.status === 200) {
+					if (response.data === 1) {
+						pagePos.querySelector('[data-table-name]').innerHTML = '&nbsp;'
+						initTable().then(() => resetBtnPay())
+					}
+					// Reconnect in 10 second
+					await new Promise(resolve => setTimeout(resolve, sec));
+					await subscribe();
+				} else {
+					// Got message
+					// let message = await response.text();
+					console.error(response.statusText)
+					await new Promise(resolve => setTimeout(resolve, sec));
+					await subscribe();
+				}
+			} catch (err) {
+				// catches errors both in fetch and response.json
+				// let's reconnect
+				console.error('Error throw! ' + err)
+				await new Promise(resolve => setTimeout(resolve, sec));
+				await subscribe();
+			}
+		}
+
+		return {
+			init: function() {
+				pagePos = document.getElementById('pos')
+				modalEl = document.getElementById('calculate')
+				modalPay = new mdb.Modal(modalEl, {
+					backdrop: 'static',
+					keyboard: false
+				})
+				masterEl = pagePos.querySelector('.billing-master')
+
+				initTable()
+				initPayment()
+				subscribe();
+				pagePos.querySelector('#take-order').addEventListener('click', function(e) {
+					e.preventDefault()
+					document.getElementById('itemcart').classList.remove('d-none')
+					pageNav('order')
+					mdb_ordering.reset();
+				})
+				modalEl.querySelector('[data-tax]').addEventListener('click', function(e) {
+					modalEl.querySelectorAll('.input-active').forEach(e => e.classList.remove('input-active'))
+					keyPay = '';
+					e.preventDefault()
+					this.classList.add('input-active')
+				})
+				modalEl.querySelector('[data-pay]').addEventListener('click', function(e) {
+					modalEl.querySelectorAll('.input-active').forEach(e => e.classList.remove('input-active'))
+					keyPay = '';
+					e.preventDefault()
+					this.classList.add('input-active')
+				})
+				// print-receipt
+				pagePos.querySelector('[print-receipt]').addEventListener('click', function() {
+					const modalPrintEl = document.getElementById('sale_receipt')
+					let html = modalPrintEl.querySelector('#receipt-container').innerHTML
+					let el = pagePos.querySelector('.table-to-pay.body tbody.billing').innerHTML
+					if (el == '') return
+					printJS(html, 'Receipt Sales')
+					//.then(()=>modalPrintEl.querySelector('.receipt-sale-frame div[sales-receipt]').innerHTML='')
+				})
+				pagePos.querySelector('[print-tokichen]').addEventListener('click', function() {
+					let orderEl = document.getElementById('print_order')
+					let htmlEL = document.getElementById('order-print-container').innerHTML
+					let el = pagePos.querySelector('.table-to-pay.body tbody.billing').innerHTML
+					if (el == '') return
+					printJS(htmlEL, 'Order Kitchen')
+				})
+			},
+			reload: async function(res) {
+				bill.oid = res.data.id
+				initTable().then(() => document.querySelector('.nav-link-page.nav-counter[href="#pos"]').click())
+			},
+			data: bill,
+		}
+	}()
+	mdb_table.init();
+</script>
+@endpush

@@ -1,0 +1,422 @@
+<link rel="stylesheet" href="{{ URL::asset('/css/style.css') }}">
+<div id="menu-container">
+	<div class="h-topbar"></div>
+	<div id="listcate">
+		<div id="scrollCateContainer">
+			<ul class="sidenav-menu" id="cate_list">
+				@foreach($cate??[] as $c)
+				@continue($c->menu->count() == 0)
+				<li class="sidenav-item">
+					{{--<a class="d-flex flex-colucard-body text-white text-start py-3 d-flex flex-column justify-content-betweenmn align-content-center text-center mx-2 mt-4 mb-4 cate-link" href="#list_menu_{{ $c->id }}">--}}
+					<a class="btn d-flex flex-column align-content-center text-center mx-2 my-4 rounded-9 cate-link" idx="{{ $c->id }}">
+						<span style="width:48px; height:48px; margin: auto; display: block;">{!! $c->icon??'' !!}</span>
+						<span class="fs-6 text-light">{{ $c->name }}</span>
+					</a>
+				</li>
+				@endforeach
+			</ul>
+		</div>
+	</div>
+	<div id="listmenu" class="bg-black">
+		<div class="foods" id="listmenu_items"></div>
+	</div>
+</div>
+
+@push('modal')
+<div id="confirm_order"
+	class="sidenav gray-black shadow-0"
+	role="navigation"
+	data-scroll-container="#scrollOrderContainer"
+	data-backdrop-class="backdrop-63"
+	data-width="356"
+	data-content="main"
+	data-right="true">
+	<div class="d-flex navbar container-fluid h-topbar shadow-0">
+		<div class="d-flex w-100 justify-content-between">
+			<button class="btn fw-600 text-white shadow-0 btn-lg text-capitalize" data-toggle="sidenav" data-target="#confirm_order">Close</button>
+			@include('ordering.partials.toprightbar')
+		</div>
+	</div>
+	<div id="scrollOrderContainer" style="height: 100vh">
+		<table class="order-item table-sm table-borderless mt-3 text-light">
+			<tbody class="order-item-master d-none">
+				<tr class="rowitem" fid="">
+					<td width="70" class=""><img src="{{ URL::asset('img/icon/dinning.svg') }}" alt="" class="list-group-icon" /></td>
+					<td class="">
+						<h5 class="fw-600 mb-3" item-name>Chat Masala</h5>
+						<table class="table-sm table-borderless">
+							<tr>
+								<td class="pe-0" style="width: 1px"><button class="btn btn-success btn-sm qty-rem"><span class="fa fa-minus"></span></button></td>
+								<td class="px-2 text-center" style="width: 60px"><span class="h6 fw-600" item-qty>4</span></td>
+								<td class="" style="width: 1px"><button class="btn btn-success btn-sm qty-add"><span class="fa fa-plus"></span></button></td>
+								<td class=" text-end"><span class="h6 fw-600" item-amt>20.00</span></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</tbody>
+			<tbody id="order-list"></tbody>
+		</table>
+	</div>
+	<div class="sideright-footer">
+		<table class="table table-borderless p-0">
+			<tr class="sum-total">
+				<th class="text-start align-middle"><span class="fs-5 text-light fw-500 align-middle">Total Amount</span></th>
+				<th class="text-end align-middle"><span class="fs-4 text-light fw-600" order-total>0.00</span></th>
+			</tr>
+			<tr>
+				<th colspan="2" class="p-0">
+					<button class="btn btn-lg btn-success fw-400 fs-5 btn-block py-3 rounded-0 shadow-0 text-capitalize"
+						id="confirm-order-button" data-toggle="sidenav" data-target="#confirm_order">Finish Ordering</button>
+				</th>
+			</tr>
+		</table>
+	</div>
+</div>
+{{--<div id="finish_order"
+         class="sidenav gray-black shadow-0"
+         role="navigation"
+         data-scroll-container="#scrollOrderContainer"
+         data-backdrop-class="backdrop-63"
+         data-width="356"
+         data-content="main"
+         data-right="true"
+         style="z-index: 100000"
+    >
+        <div class="d-flex navbar container-fluid h-topbar shadow-0">
+            <div class="d-flex w-100 justify-content-between align-middle">
+                <h5 class="fw-600 text-white  mb-0 fs-6 align-middle pt-3 ms-3">Order List</h5>
+                <a href="#page_1" class="btn btn-link btn-lg text-success fw-500 goto nav-link-page"
+                   id="back-to-table" data-toggle="sidenav" data-target="#finish_order">Back to Table</a>
+            </div>
+        </div>
+        <div id="scrollOrderContainer" style="height: 100vh">
+            <table class="order-item table-sm table-borderless mt-3 text-light">
+                <tbody class="finish-item-master d-none">
+                <tr class="rowitem" fid="">
+                    <td width="70" class=""><img src="{{ $f->img??URL::asset('img/icon/dinning.svg') }}" alt="" class="list-group-icon" /></td>
+<td class="">
+	<h5 class="fw-600 mb-3" item-name>Chat Masala</h5>
+	<table class="table-sm table-borderless">
+		<tr>
+			<td class="">x &nbsp;<span class="h6 fw-600" item-qty>4</span></td>
+			<td class="text-end"><span class="h6 fw-600" item-amt>20.00</span></td>
+		</tr>
+	</table>
+</td>
+</tr>
+</tbody>
+<tbody id="finish-list"></tbody>
+</table>
+</div>
+<div class="sideright-footer">
+	<table class="table table-borderless p-0">
+		<tr class="sum-total">
+			<th class="text-start align-middle"><span class="fs-5 text-light fw-500 align-middle">Total Amount</span></th>
+			<th class="text-end align-middle"><span class="fs-4 text-light fw-600" finish-total>0.00</span></th>
+		</tr>
+		<tr>
+			<th colspan="2" class="p-0">
+				<button class="btn btn-lg btn-success fw-400 fs-5 btn-block py-3 rounded-0 shadow-0 text-capitalize mt-0" id="add-more-button">Add More Items</button>
+			</th>
+		</tr>
+	</table>
+</div>
+</div>--}}
+<div id="print_order"
+	class="sidenav gray-black"
+	role="navigation"
+	data-scroll-container="#order-print-container"
+	data-width="359.05511811" {{-- 1px = 37.795275591 cm --}}
+	data-backdrop-class="bg-gray-white"
+	data-content="main"
+	data-right="true">
+
+	<div class="receipt-header_top px-3"></div>
+	<div class="receipt-header sidenav-receipt sidenav-receipt-top px-3 d-flex" style="height: 89.59px">
+		<h3 class="fw-600 py-4 flex-fill">Order List</h3>
+		<div class="right-side px-4 py-2 pe-0">
+			<a class="btn fs-3 text-success" order-printout><i class="fa fa-print"></i></a>
+		</div>
+	</div>
+	<div id="order-print-container" class="bg-white sidebav_print_container py-5 px-0" style="height: 100%">
+		<link rel="stylesheet" href="{{ URL::asset('css/print.css') }}">
+		<div class="receipt-frame">
+			<div class="receipt-sale-info">
+				<h4 class="order_table_no" style="font-weight: 600; margin-bottom: 1.5rem"></h4>
+				<h5 class="order_print" style="display: flex; justify-content: space-between; font-size:7pt">
+					<span class="date"></span>
+					<span class="time"></span>
+				</h5>
+			</div>
+			<hr class="receipt_separator" style="margin: 0; margin-top: .7rem;margin-bottom: .7rem;">
+			<table class="print_order-item" style="width: 100%">
+				<tbody></tbody>
+			</table>
+		</div>
+	</div>
+</div>
+@endpush
+
+@push('javascript')
+<script>
+	var mdb_ordering = function() {
+		const Ordering = {
+			total: 0,
+			tcount: 0,
+			sts: 2
+		}
+		const tempOrderItem = document.querySelector('.order-item-master').cloneNode(true)
+		const confirmOrder = mdb.Sidenav.getInstance(document.getElementById('confirm_order'));
+		var listOrder = {}
+		var orderData;
+
+		async function initCateMenu() {
+			let res = await axios(APP_URL + 'ordering/?getpos=true')
+			let data = res.data;
+			let cate = data.cate ?? [];
+			let food = data.food ?? [];
+			document.querySelector('#cate_list').innerHTML = cate.filter(f => f.menu.length > 0).map(function(f) {
+				return `<a class="btn d-flex flex-column align-content-center text-center mx-2 my-4 rounded-9 cate-link" idx="${ f.id }">
+                            <span style="width:48px; height:48px; margin: auto; display: block;">${f.icon??''}</span>
+                            <span class="fs-6 text-light">${ f.name }</span>
+                        </a>`
+			}).join('')
+			initCateLink()
+		}
+
+		function addOrder(id) {
+			let el = document.querySelector(`[data-food-${id}]`)
+			let count = 0
+			let data = listOrder[id]
+			let amt = 0;
+			let len = 0
+
+			if (!data) {
+				data = el.getAttribute('data-value').split(',')
+				data.push(count)
+				data.push(amt)
+			}
+			len = data.length
+			count = data[len - 2] + 1
+			data[len - 2] = count; // quantity
+			data[len - 1] = (parseFloat(data[2]) * count) + parseFloat(data[3]) // total
+			listOrder[id] = data
+			takeOrder(id, data)
+		}
+
+		function remOder(id) {
+			let data = listOrder[id];
+			let len = 0
+			let count = 0;
+			if (!data) return;
+			len = data.length;
+			count = data[len - 2] - 1
+			data[len - 2] = count
+			if (count > 0) {
+				data[len - 1] = (parseFloat(data[2]) * count) + parseFloat(data[3]) // total
+				listOrder[id] = data
+			} else {
+				delete listOrder[id];
+			}
+			takeOrder(id, data)
+		}
+
+		function takeOrder(id, data) {
+			let el = document.querySelector(`[data-food-${id}]`)
+			let sum = 0;
+			let tcount = 0;
+			let aList = document.getElementById('order-list');
+			let aItems;
+			let count = data[data.length - 2]
+			let disp = count > 0 ? `<span class="count-item bg-light text-success">${count}</span>` : ''
+
+			if (el) {
+				el.classList.add('need-reset');
+				el.querySelector('.disp-counter').innerHTML = disp
+			}
+
+			aItems = Object.keys(listOrder)
+			aList.innerHTML = aItems.map((i, n) => {
+				let el = tempOrderItem.cloneNode(true)
+				let data = listOrder[i]
+				let idf2 = data[0] + data[1]
+				sum += data[7];
+				tcount += data[6]
+				el.querySelector('tr.rowitem').setAttribute('fid', idf2)
+				el.querySelector('[item-name]').innerText = data[4]
+				el.querySelector('[item-qty]').innerText = data[6]
+				el.querySelector('[item-amt]').innerText = currency(data[7])
+				return el.innerHTML
+			}).join('')
+			aList.querySelectorAll('tr.rowitem').forEach((tr, n) => {
+				let btnadd = tr.querySelector('table td button.qty-add')
+				let btnrem = tr.querySelector('table td button.qty-rem')
+				let fid = tr.getAttribute('fid')
+				if (btnadd) btnadd.addEventListener('click', function(e) {
+					e.preventDefault();
+					addOrder(fid)
+				})
+				if (btnrem) btnrem.addEventListener('click', function(e) {
+					e.preventDefault();
+					remOder(fid)
+				})
+			})
+			Ordering.tcount = tcount
+			Ordering.total = sum
+			document.querySelectorAll('.count-order').forEach((t, n) => {
+				t.textContent = Ordering.tcount
+			})
+			document.querySelector('[order-total]').innerHTML = currency(sum)
+		}
+
+		function clearOrder() {
+			document.querySelectorAll('.count-order').forEach((t, n) => {
+				t.textContent = 0
+			})
+			document.querySelector('[order-total]').innerHTML = '0.00'
+			document.querySelectorAll('.need-reset').forEach(function(e) {
+				e.classList.remove('.need-reset');
+				e.querySelector('.disp-counter').innerHTML = ''
+			})
+			document.getElementById('order-list').innerHTML = '';
+			listOrder = {}
+		}
+
+		function finalize(sts = -1) {
+			let aItems;
+			if (sts === 0) return;
+			aItems = Object.keys(listOrder)
+
+			// print kitchen
+			let orderEl = document.getElementById('print_order')
+			let tbody = orderEl.querySelector('.print_order-item tbody')
+			let date = orderEl.querySelector('.order_print')
+			date.querySelector('.date').innerText = moment().format('DD/MM/YYYY')
+			date.querySelector('.time').innerText = moment().format('hh:mm a')
+			if (orderData) orderEl.querySelector('.order_table_no').textContent = orderData.desk ?? ''
+			tbody.innerHTML = aItems.map((p, n) => {
+				let data = listOrder[p]
+				return `<tr>
+                        <td style="padding: .5rem 0;">${data[4]}</td>
+                        <td style="text-align: right;">${data[6]}</td></tr>`
+			}).join('')
+			//
+			clearOrder()
+		}
+
+		function viewOrder(tno, data) {
+			let orderEl = document.getElementById('print_order')
+			let tbody = orderEl.querySelector('.print_order-item tbody')
+			let date = orderEl.querySelector('.order_print')
+			date.querySelector('.date').innerText = moment().format('DD/MM/YYYY')
+			date.querySelector('.time').innerText = moment().format('hh:mm a')
+			orderEl.querySelector('.order_table_no').textContent = tno
+			tbody.innerHTML = data.map((p, n) => {
+				return `<tr>
+                        <td style="padding: .5rem 0;">${p[4]}</td>
+                        <td style="text-align: right;">${p[6]}</td></tr>`
+			}).join('')
+		}
+
+		function initCateLink() {
+			document.querySelectorAll('.cate-link').forEach(function(cl) {
+				cl.addEventListener('click', function(e) {
+					e.preventDefault()
+					let id = this.getAttribute('idx')
+					axios(APP_URL + 'item/?cate=' + id).then(res => {
+						let data = res.data;
+						document.getElementById('listmenu_items').innerHTML = data.map((f, n) => {
+							let lnk = '';
+							let cate = f.cate ? f.cate.name : ''
+							let subtext = f.subtext ? '<br>' + f.subtext : ''
+							let dataValue = [f.id, f.cate_id, f.price, 0, f.name + subtext, cate].join(',')
+							let unix = `${f.id}${f.cate_id}`
+							if (f.link) lnk = `id="list_menu_${ f.cate_id }"`
+							return `<a class="btn p-0 rounded-9 position-relative" data-food-${ unix } data-value="${ dataValue}" data-count="0" ${lnk}>
+                                                <div class="bg-image card rounded-9 btn-add-order" idx="${ unix }">
+                                                    <div class="card-body text-white text-start py-3 d-flex flex-column justify-content-between"
+                                                        style="background-color: rgba(0, 0, 0, 0.6);">
+
+                                                        <h5 class="card-title fw-bold">${ f.name }</h5>
+                                                        <p class="card-text mb-0">RM ${ f.price }</p>
+                                                        <div class="disp-counter text-end"></div>
+                                                    </div>
+                                                </div>
+                                                <button class="btn btn-floating btn-outline-light mt-1 btn-rem-order btn-rem-order"  idx="${unix}">
+                                                  <span class="fa fa-minus"></span>
+                                                </button>
+                                            </a>`
+						}).join('')
+						document.querySelectorAll('.btn-add-order').forEach(function(odr) {
+							let idx = odr.getAttribute('idx');
+							odr.addEventListener('click', (e) => {
+								e.preventDefault();
+								addOrder(idx)
+							})
+						})
+						document.querySelectorAll('.btn-rem-order').forEach(function(odr) {
+							let idx = odr.getAttribute('idx');
+							odr.addEventListener('click', function(e) {
+								e.preventDefault();
+								remOder(idx)
+							})
+						})
+					})
+				})
+			})
+		}
+		return {
+			init: function() {
+				initCateMenu()
+				initCateLink()
+				document.getElementById('confirm-order-button').addEventListener('click', function(e) {
+					e.preventDefault()
+					let dp = {
+						bill: Ordering,
+						item: listOrder,
+						_token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+						table: document.querySelector('meta[name="table"]').getAttribute('content')
+					}
+					if (parseInt(Ordering.tcount) === 0) return;
+					axios.post(APP_URL + 'ordering/bill', dp).then(res => {
+							if (!res.data.success) {
+								console.log(res.data);
+								return;
+							}
+							orderData = res.data
+							finalize(1)
+							let html = document.getElementById('order-print-container').innerHTML
+							printJS(html, 'Order Kitchen')
+
+							const salesIds = res.data.items ? res.data.items.map(i => i.id) : []
+							if (salesIds.length > 0) {
+								axios.post(APP_URL + 'ordering/' + res.data.data.id + '/printed', {
+									sales_ids: salesIds,
+									_token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+								}).catch(err => console.error('Mark printed error:', err))
+							}
+
+							if (typeof publishKitchenOrder === 'function') {
+								publishKitchenOrder(
+									res.data.data.id,
+									res.data.desk,
+									res.data.items || []
+								);
+							}
+
+							mdb_table.reload(orderData)
+						})
+						.catch(e => console.error(e.message))
+				})
+			},
+			reset: function() {
+				clearOrder()
+				finalize(0)
+			},
+			tokichen: viewOrder
+		}
+	}()
+	mdb_ordering.init();
+</script>
+@endpush

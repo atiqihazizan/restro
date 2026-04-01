@@ -1,0 +1,112 @@
+================================================================================
+RINGKASAN PERUBAHAN PENGIRAAN TOTAL - 30 MAC 2026
+================================================================================
+
+MASALAH ASAL:
+-------------
+1. Pengiraan total di klien (JavaScript) menggunakan loop tambah dari baris kategori
+2. Parse koma tidak sempurna: replace(',', '') hanya buang koma pertama
+3. Pembundaran per kategori menyebabkan jumlah tidak sama dengan subtotal sebenar
+4. Dua sumber pengiraan berbeza: klien kira sendiri, API pun kira sendiri
+
+PENYELESAIAN:
+-------------
+✓ Kira sekali di API sahaja
+✓ Klien hanya papar nilai dari API
+✓ Tiada lagi pengiraan bercabang
+✓ Konsisten antara skrin dan cetakan
+
+================================================================================
+FAIL YANG DIUBAH:
+================================================================================
+
+1. app/Http/Traits/ReportTrait.php
+   - Buang komen lama sahaja
+   - Tiada perubahan logik
+
+2. app/Http/Controllers/SalesController.php  
+   - Buang komen lama sahaja
+   - Tiada perubahan logik
+
+3. resources/views/counter/salexpen.blade.php ← PERUBAHAN UTAMA
+   
+   A. Buang komen HTML/JavaScript lama
+      ✓ Buang komen search input
+      ✓ Buang komen payment column  
+      ✓ Buang komen action buttons
+
+   B. initDaily() - Baris 345-383
+      SEBELUM: let total = 0; loop tambah s.amount, footer guna total
+      SELEPAS: Buang loop tambah, footer guna man.subtotal/tax/total terus
+      
+   C. initMonthly() - Baris 384-421
+      SEBELUM: let total = 0; loop tambah s.amount, footer guna total  
+      SELEPAS: Buang loop tambah, footer guna man.subtotal/tax/total terus
+      
+   D. initYearly() - Baris 422-459
+      SEBELUM: let total = 0; loop tambah s.amount, footer guna total
+      SELEPAS: Buang loop tambah, footer guna man.subtotal/tax/total terus
+      
+   E. reportPreview() - Baris 461-482
+      SEBELUM: let subt = 0; loop tambah r.amount, papar subt
+      SELEPAS: Buang loop tambah, papar man.subtotal/tax/total terus
+
+================================================================================
+PERUBAHAN LABEL FOOTER:
+================================================================================
+
+SEBELUM:
+--------
+Total          : RM xxx.xx  ← Hasil tambah kategori (boleh salah)
+Tax Amount     : RM xx.xx
+Grand Total    : RM xxx.xx
+
+SELEPAS:
+--------
+Subtotal       : RM xxx.xx  ← Dari API (sebelum cukai)
+Tax Amount     : RM xx.xx   ← Dari API
+Grand Total    : RM xxx.xx  ← Dari API (subtotal + tax)
+
+================================================================================
+FUNGSI YANG KEKAL (TIDAK DIUBAH):
+================================================================================
+
+✓ ledgerNum(v) - Parse nilai dengan betul
+✓ ledgerGrand(man, sumDet, taxVal) - Fallback (tidak digunakan lagi)
+✓ receiptPaid(data) - Resit jualan individu
+✓ initSales() - Senarai jualan harian
+
+================================================================================
+BACKUP FAIL:
+================================================================================
+
+Lokasi: /backup/2026-03-30/
+
+1. ReportTrait copy.php1.bak
+2. SalesController copy.php1.bak  
+3. salexpen.blade copy.php1.bak
+4. PERUBAHAN.md (dokumentasi lengkap)
+5. RINGKASAN_PERUBAHAN.txt (fail ini)
+
+================================================================================
+PERKARA PERLU DIUJI:
+================================================================================
+
+□ Daily report - Subtotal, Tax, Grand Total
+□ Monthly report - Subtotal, Tax, Grand Total  
+□ Yearly report - Subtotal, Tax, Grand Total
+□ Print preview ketiga-tiga laporan
+□ Nilai besar (>1,000,000) - format betul
+□ Tarikh tiada data - tidak error
+□ Konsistensi skrin vs cetakan
+
+================================================================================
+KESAN:
+================================================================================
+
+✅ Subtotal, Tax, Grand Total konsisten antara skrin dan cetakan
+✅ Tiada masalah parse koma atau pembundaran
+✅ Mudah maintain - satu sumber kebenaran (API)
+✅ Elak bug pengiraan bercabang
+
+================================================================================

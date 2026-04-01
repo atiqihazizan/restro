@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <link rel="icon" href="/img/logo.png" sizes="32x32" />
+    <link rel="icon" href="/img/logo.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/img/logo.png" />
+    <title>Restro {{ isset($title) ? '| ' . $title : '' }} </title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="table" content="0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <link rel="shortcut icon" href="{{URL::asset('img/logo.png')}}" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{{ URL::asset('/assets/font-awesome/css/all.css')}}" />
+
+    <!-- MDB -->
+    <link rel="stylesheet" href="{{ URL::asset('/css/plugin/compiled.min.css')}}" />
+    <link rel="stylesheet" href="{{ URL::asset('/css/plugin/mdb.min.css')}}" />
+    <link rel="stylesheet" href="{{ URL::asset('/css/ui-kit/mdb.min.css')}}" />
+
+    <link rel="stylesheet" href="{{ URL::asset('css/counter.css') }}">
+
+</head>
+<body class="gray-black">
+<header>
+    <nav class="navbar navbar-expand-lg fixed-top navbar-scroll navbar-scrolled gray-black shadow-0 h-topbar py-0">
+        <div class="container-fluid">
+            <a class="navbar-brand nav-link"><h4 class="text-white my-0 me-2 ms-3">{{ $comp->logotxt }}</h4></a>
+            <!-- navbar right -->
+            <div class="d-flex align-items-center">
+                @foreach($nav as $n)
+                    @continue($n->sts!=1)
+                    <a class="nav-link nav-link-page nav-counter" href="#{{ $n->id }}"><i class="{{ $n->fa??''}} me-2"></i> {{ $n->name }}</a>
+                @endforeach
+                <button type="button" id="itemcart" class="btn btn-danger btn-rounded btn-lg fw-500 text-capitalize d-none"
+                        data-toggle="sidenav" data-target="#confirm_order"
+                        class="btn btn-primary" aria-controls="#confirm_order"
+                        aria-haspopup="true">
+                    Items in Cart (<span class="count-order">0</span>)
+                </button>
+            </div>
+
+        </div>
+    </nav>
+</header>
+<main style="display: inline-flex;">
+    @foreach($nav as $n)
+        @continue($n->sts==0)
+        <div id="{{ $n->id }}" class="page-frame bg-black d-none animation faster fade-in">@includeIf('counter.' . $n->id)</div>
+    @endforeach
+</main>
+
+@stack('modal')
+
+<script type="text/javascript" src="{{URL::asset('/js/plugin/mdb.min.js')}}"></script>
+<script type="text/javascript" src="{{URL::asset('/js/plugin/scripts.bundle.js')}}"></script>
+<script type="text/javascript" src="{{URL::asset('/js/plugin/axios.min.js')}}"></script>
+<script type="text/javascript" src="{{URL::asset('/js/plugin/moment.min.js')}}"></script>
+<script type="text/javascript" src="{{URL::asset('/js/main.js')}}"></script>
+<script type="text/javascript" src="{{URL::asset('/js/mah.js')}}"></script>
+<script>
+    const APP_URL = '{{ URL::asset('') }}';
+    axios.defaults.headers = {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+    }
+    initTabs('.nav-link-page','.page-frame',function(n){
+        const href = n.getAttribute('href');
+        document.querySelectorAll('.sidenav').forEach(function(s){
+            let side = mdb.Sidenav.getInstance(s);
+            if(side)side.hide();
+        })
+        let btnCart = document.getElementById('itemcart');
+        if(!btnCart.classList.contains('d-none')) btnCart.classList.add('d-none');
+    })
+    function pageNav(href){pageChange('#'+href,'.page-frame','.nav-link-page')}
+    pageNav('pos')
+</script>
+@stack('javascript')
+
+</body>
+</html>

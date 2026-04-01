@@ -1,0 +1,95 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Traits\ReportTrait;
+use App\Models\Billing;
+use App\Models\Categories;
+use App\Models\LedgerFood;
+use App\Models\Sales;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+class SalesController extends Controller
+{
+    use ReportTrait;
+    public function sales(Request $request){
+        $today = $request->find??date('Y-m-d');
+        $data = Billing::with('desk','item')->whereDate('paid_at',$today)->get();
+        return response($data);
+    }
+    public function daily(Request $request){
+        $today = $request->find??date('Y-m-d');
+        $man = $this->reportMan($today);
+        $data = LedgerFood::with('cate')
+            ->whereDate('dtsale',$today)
+            ->get();
+        $c = $data->groupBy('cate_id');
+        $rt = $c->mapWithKeys(function($grp,$key){
+            return [
+                $key => [
+                    'id'=>$key,
+                    'amount'=>number_format($grp->sum('amount'),2),
+                    'qnt'=>$grp->sum('qty'),
+                    'cate'=> trim( $grp->first()['cate']->name??'')
+                ]
+            ];
+        });
+        $data = [
+            'man'=>$man,
+            'det'=>$rt->values()
+        ];
+        return response()->json($data);
+    }
+    public function monthly(Request $request){
+        $fdate = $request->find??date('Y-m');
+        $man = $this->reportManMonth($fdate);
+        $yrmth = explode('-',$fdate);
+        $yr = $yrmth[0];
+        $mth = $yrmth[1];
+
+        $data = LedgerFood::with('cate')
+            ->whereYear('dtsale',$yr)
+            ->whereMonth('dtsale',$mth)
+            ->get();
+        $c = $data->groupBy('cate_id');
+        $rt = $c->mapWithKeys(function($grp,$key){
+            return [
+                $key => [
+                    'id'=>$key,
+                    'amount'=>number_format($grp->sum('amount'),2),
+                    'qnt'=>$grp->sum('qty'),
+                    'cate'=> trim( $grp->first()['cate']->name??'')
+                ]
+            ];
+        });
+        $data = [
+            'man'=>$man,
+            'det'=>$rt->values()
+        ];
+        return response()->json($data);
+    }
+    public function yearly(Request $request){
+        $yr = $request->find??date('Y');
+        $man = $this->reportManYear($yr);
+        $data = LedgerFood::with('cate')
+            ->whereYear('dtsale',$yr)
+            ->get();
+        $c = $data->groupBy('cate_id');
+        $rt = $c->mapWithKeys(function($grp,$key){
+            return [
+                $key => [
+                    'id'=>$key,
+                    'amount'=>number_format($grp->sum('amount'),2),
+                    'qnt'=>$grp->sum('qty'),
+                    'cate'=> trim( $grp->first()['cate']->name??'')
+                ]
+            ];
+        });
+        $data = [
+            'man'=>$man,
+            'det'=>$rt->values()
+        ];
+        return response()->json($data);
+    }
+}

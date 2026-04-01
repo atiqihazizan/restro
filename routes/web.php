@@ -1,0 +1,60 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+//Route::get('/', function () {return view('errors.404');});
+Route::get('/',[\App\Http\Controllers\CounterController::class,'index'])->name('main');
+
+Route::group(['prefix'=>'item'],function(){
+    Route::get('/',[\App\Http\Controllers\FoodsController::class,'item_index'])->name('item.index');
+    Route::post('/',[\App\Http\Controllers\FoodsController::class,'item_store'])->name('item.store');
+    Route::put('/{foods}',[\App\Http\Controllers\FoodsController::class,'item_update'])->name('item.update');
+    Route::delete('/{foods}',[\App\Http\Controllers\FoodsController::class,'item_delete'])->name('item.delete');
+});
+Route::group(['prefix'=>'cate'],function(){
+    Route::get('/',[\App\Http\Controllers\FoodsController::class,'cate_index'])->name('cate.index');
+    Route::post('/',[\App\Http\Controllers\FoodsController::class,'cate_store'])->name('cate.store');
+    Route::put('/{cate}',[\App\Http\Controllers\FoodsController::class,'cate_update'])->name('cate.update');
+    Route::delete('/{cate}',[\App\Http\Controllers\FoodsController::class,'cate_delete'])->name('cate.delete');
+});
+
+Route::group(['prefix'=>'counter'],function(){
+    Route::get('/',[\App\Http\Controllers\CounterController::class,'index'])->name('counter.index');
+    Route::get('/{bill}/pos',[\App\Http\Controllers\CounterController::class,'receipt'])->name('counter.receipt');
+    Route::post('/{bill}/pos',[\App\Http\Controllers\CounterController::class,'paid'])->name('counter.paid');
+    Route::get('/{bill}/reprint',[\App\Http\Controllers\CounterController::class,'reprint'])->name('counter.reprint');
+    Route::post('/{bill}/calculate',[\App\Http\Controllers\CounterController::class,'calculate'])->name('counter.calculate');
+
+    Route::get('/sales',[\App\Http\Controllers\SalesController::class,'sales'])->name('counter.sales');
+    Route::get('/daily',[\App\Http\Controllers\SalesController::class,'daily'])->name('counter.daily');
+    Route::get('/monthly',[\App\Http\Controllers\SalesController::class,'monthly'])->name('counter.monthly');
+    Route::get('/yearly',[\App\Http\Controllers\SalesController::class,'yearly'])->name('counter.yearly');
+
+});
+
+Route::group(['prefix'=>'ordering'],function(){
+    Route::post('/bill',[\App\Http\Controllers\OrderingController::class,'store'])->name('ordering.bill');
+    Route::post('/{bill}/printed',[\App\Http\Controllers\OrderingController::class,'markPrinted'])->name('ordering.printed');
+    Route::get('/',[\App\Http\Controllers\OrderingController::class,'index'])->name('ordering.index');
+    Route::get('/status',[\App\Http\Controllers\OrderingController::class,'status'])->name('ordering.status');
+    Route::get('/paybil',[\App\Http\Controllers\OrderingController::class,'paysts'])->name('ordering.paybil');
+    Route::delete('/{sales}',[\App\Http\Controllers\OrderingController::class,'delorder'])->name('ordering.delete');
+});
+
+Route::put('/restro/{restro}',[\App\Http\Controllers\RestroController::class,'update'])->name('company.update');
+
+Route::get('/kitchen', function() {
+    return view('kitchen.index');
+})->name('kitchen.index');
+

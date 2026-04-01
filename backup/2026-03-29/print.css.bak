@@ -1,0 +1,33 @@
+/*** receipt sale ***/
+h4.receipt-sale-name {
+    width: 100%;
+    text-align: center;
+    font-weight: 600;
+    font-size: 15pt;
+}
+h5.receipt-sale-logotext {
+    text-align: center;
+    margin-top: 0.9rem;
+    margin-bottom: 0.9rem;
+}
+span.receipt-sale-addr {
+    text-align: center;
+    width: 100%;
+    display: block;
+}
+.receipt-sale-frame,.receipt-frame { padding: 0rem 1rem}
+.receipt-sale-separator,.receipt_separator {border-bottom: 1px dashed black; margin: 0; margin-top: .7rem;margin-bottom: .7rem;}
+table.receipt-sale-infopaid * {font-size: 11pt;}
+table.receipt-sale-item, table.receipt-sale-infopaid {width: 100%;}
+table.receipt-sale-item td:first-child { text-align: left;}
+table.receipt-sale-item td:nth-child(2) { text-align: left; width: 10px;}
+table.receipt-sale-item td:last-child,
+table.receipt-sale-infopaid td:last-child {text-align: right; width: 80px}
+table.receipt-sale-item td:nth-child(n - 2),
+table.receipt-sale-infopaid td:nth-child(n - 2) {text-align: right; width: 50px}
+
+#print_order .sidebav_print_container * { color: black}
+
+@media print {
+    * {color:black !important; border-color: black !important;}
+}

@@ -1,0 +1,119 @@
+# Restro
+
+Aplikasi pengurusan / pesanan restoran berasaskan [Laravel](https://laravel.com) 10 dan PHP 8.1+.
+
+Repositori: [https://github.com/atiqihazizan/restro](https://github.com/atiqihazizan/restro)
+
+---
+
+## Setup semula dari awal
+
+Ikuti langkah ini pada komputer baharu atau selepas `git clone`.
+
+### Prasyarat
+
+- **PHP** 8.1.1 atau lebih tinggi (sambungan biasa: `pdo`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`)
+- **[Composer](https://getcomposer.org/)**
+- **Node.js** dan **npm** (untuk Vite / aset frontend)
+- **MySQL** / **MariaDB** (atau sesuaikan untuk SQLite jika anda ubah `.env`)
+
+### 1. Dapatkan kod sumber
+
+```bash
+git clone https://github.com/atiqihazizan/restro.git
+cd restro
+```
+
+Atau ekstrak zip projek ke folder pilihan anda, kemudian `cd` ke folder tersebut.
+
+### 2. Pasang kebergantungan PHP
+
+```bash
+composer install
+```
+
+### 3. Persekitaran dan kunci aplikasi
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Fail `.env` tidak disertakan dalam Git (keselamatan). Anda **mesti** salin dari `.env.example` dan lengkapkan nilai sendiri.
+
+### 4. Pangkalan data
+
+Sunting `.env` dan set medan pangkalan data, contoh untuk MySQL:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nama_pangkalan_anda
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Cipta pangkalan data kosong (contohnya `CREATE DATABASE nama_pangkalan_anda;`) mengikut nama dalam `DB_DATABASE`.
+
+Jalankan migrasi:
+
+```bash
+php artisan migrate
+```
+
+**Data contoh (pilihan):** selepas migrasi, untuk meja asas seperti meja, kategori, makanan, restro:
+
+```bash
+php artisan db:seed
+```
+
+### 5. Storage dan kebenaran (jika perlu)
+
+Pautan simbolik untuk fail awam:
+
+```bash
+php artisan storage:link
+```
+
+Pada Linux/macOS, jika ada ralat kebenaran pada `storage/` atau `bootstrap/cache/`, laraskan pemilik/pembacaan mengikut persekitaran pelayan anda.
+
+### 6. Aset frontend (Vite)
+
+```bash
+npm install
+```
+
+- **Pembangunan** (hot reload): `npm run dev` — jalankan bersama pelayan PHP anda.
+- **Production**: `npm run build`
+
+### 7. Jalankan aplikasi
+
+```bash
+php artisan serve
+```
+
+Buka pelayar ke alamat yang dipaparkan (biasanya `http://127.0.0.1:8000`).
+
+---
+
+## Ringkasan arahan (salin sekaligus selepas clone)
+
+Selepas `DB_*` dalam `.env` diset dengan betul:
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+php artisan storage:link
+npm install && npm run build
+php artisan serve
+```
+
+---
+
+## Lesen
+
+Projek ini menggunakan rangka kerja Laravel (lesen MIT). Lihat [dokumentasi Laravel](https://laravel.com/docs) untuk butiran lanjut rangka kerja.

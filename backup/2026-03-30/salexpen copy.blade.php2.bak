@@ -1,0 +1,431 @@
+<div class="sales d-flex">
+	<div class="sidebar sales-sidebar pt-4">
+		<div class="d-flex flex-column">
+			<a href="#tabs-sale" data-fun-name="initSales" class="report-nav">销售量</a>
+			<a href="#tabs-daily" data-fun-name="initDaily" class="report-nav">日常的</a>
+			<a href="#tabs-monthly" data-fun-name="initMonthly" class="report-nav">月收入</a>
+			<a href="#tabs-yearly" data-fun-name="initYearly" class="report-nav">年收入</a>
+		</div>
+	</div>
+	<div class="sales-container flex-fill">
+		<div class="d-none report-page animation faster fade-in" id="tabs-sale">
+			<div class="sales-title">
+				<h3 class="fw-500 mt-1 mb-0">Sales</h3>
+				<div class="search position-relative d-flex gap-2">
+					<input type="text" id="searchrcptno" class="form-control form-control-lg bg-success rounded-pill" placeholder="Search Receipt No..." style="max-width: 250px">
+					<input type="date" id="viewdailysale" class="form-control form-control-lg bg-success rounded-pill" value="{{date('Y-m-d')}}">
+				</div>
+			</div>
+			<div class="sales-content">
+				<div class="table-responsive">
+					<table class="table table-borderless table-sales">
+						<thead>
+							<tr class="thead-tr fw-500">
+								<td class="text-center" style="width: 133px">Receipt Num</td>
+								<td class="text-end">Amount</td>
+								<td class="text-center">Items</td>
+								<td class="text-center">Table</td>
+								<td class="text-center" style="width: 180px">Actions</td>
+							</tr>
+						</thead>
+						<tbody id="sales_list_data"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="d-none report-page animation faster fade-in" id="tabs-daily">
+			<div class="sales-title">
+				<div class="d-flex">
+					<h3 class="fw-500 mt-1 mb-0">Daily</h3>
+					<button class="btn btn-success ms-3 rounded-pill fs-6" data-print-daily><i class="fa fa-print"></i> Print</button>
+				</div>
+				<div class="search position-relative">
+					<input type="date" id="viewdaily" class="form-control form-control-lg bg-success rounded-pill" value="{{date('Y-m-d')}}">
+				</div>
+			</div>
+			<div class="sales-content sales-content-sticky-summary">
+				@include('counter.partials.sales-report-sticky-table', [
+					'tbodyId' => 'sales_daily_data',
+					'footerId' => 'sales_daily_footer',
+				])
+			</div>
+		</div>
+		<div class="d-none report-page animation faster fade-in" id="tabs-monthly">
+			<div class="sales-title">
+				<div class="d-flex">
+					<h3 class="fw-500 mt-1 mb-0">Monthly</h3>
+					<button class="btn btn-success ms-3 rounded-pill fs-6" data-print-monthly><i class="fa fa-print"></i> Print</button>
+				</div>
+				<div class="search position-relative">
+					<input type="month" id="viewmonthly" class="form-control form-control-lg bg-success rounded-pill" value="{{date('Y-m')}}">
+				</div>
+			</div>
+			<div class="sales-content sales-content-sticky-summary">
+				@include('counter.partials.sales-report-sticky-table', [
+					'tbodyId' => 'sales_monthly_data',
+					'footerId' => 'sales_monthly_footer',
+				])
+			</div>
+		</div>
+		<div class="d-none report-page animation faster fade-in" id="tabs-yearly">
+			<div class="sales-title">
+				<div class="d-flex">
+					<h3 class="fw-500 mt-1 mb-0">Yearly</h3>
+					<button class="btn btn-success ms-3 rounded-pill fs-6" data-print-yearly><i class="fa fa-print"></i> Print</button>
+				</div>
+				<div class="search position-relative">
+					<select id="viewyearly" class="form-control form-control-lg bg-success rounded-pill">
+						<option value="">Select year</option>
+						@for($i=2020; $i<=date('Y');$i++)
+							<option value="{{$i}}" @if($i==date('Y')) selected @endif>{{$i}}</option>
+							@endfor
+					</select>
+				</div>
+			</div>
+			<div class="sales-content sales-content-sticky-summary">
+				@include('counter.partials.sales-report-sticky-table', [
+					'tbodyId' => 'sales_yearly_data',
+					'footerId' => 'sales_yearly_footer',
+				])
+			</div>
+		</div>
+	</div>
+</div>
+@push('modal')
+<div id="sale_receipt"
+	class="sidenav gray-black"
+	role="navigation"
+	data-scroll-container="#receipt-container"
+	data-width="359.05511811" {{-- 1px = 37.795275591 cm --}}
+	data-backdrop-class="bg-gray-white"
+	data-content="main"
+	data-right="true">
+
+	<div class="receipt-header_top px-3"></div>
+	<div class="receipt-header sidenav-receipt sidenav-receipt-top px-3 d-flex">
+		<h3 class="fw-600 py-4 flex-fill">Receipt</h3>
+		<div class="right-side px-4 py-2 pe-0">
+			<a class="btn fs-3 text-success" data-printout><i class="fa fa-print"></i></a>
+		</div>
+	</div>
+	<div id="receipt-container" class="sidenav-receipt sidenav-receipt-container bg-white py-5 px-0">
+		<link rel="stylesheet" href="{{ URL::asset('css/print.css') }}">
+		<div class="receipt-sale-frame">
+			@include('counter.partials.receipt.header', ['comp' => $comp])
+			@include('counter.partials.receipt.sales-receipt')
+			@include('counter.partials.receipt.report-receipt')
+		</div>
+	</div>
+</div>
+@endpush
+@push('javascript')
+<script>
+	const tax = '{{ $comp->sst }}' * 1.0
+	function ledgerNum(v) {
+		if (v == null || v === '') return 0
+		const n = Number(String(v).replace(/,/g, ''))
+		return Number.isFinite(n) ? n : 0
+	}
+	function ledgerGrand(man, sumDet, taxVal) {
+		if (man && man.total != null && man.total !== '') return ledgerNum(man.total)
+		if (man && man.grandtotal != null && man.grandtotal !== '') return ledgerNum(man.grandtotal)
+		return sumDet + ledgerNum(taxVal)
+	}
+	/** Selaraskan dengan lajur label (Category+Qty) vs satu lajur nilai; ubah jika struktur jadual bertambah */
+	const SALES_REPORT_FOOTER_LABEL_COLSPAN = 2
+	/** HTML footer Subtotal / Tax / Discount / Grand Total — standard untuk Daily, Monthly, Yearly */
+	function salesReportSummaryFooterHtml(man) {
+		const cs = SALES_REPORT_FOOTER_LABEL_COLSPAN
+		const netTotal = ledgerNum(man.subtotal) + ledgerNum(man.tax)
+		const discountAmt = ledgerNum(man.discount)
+		const discountRow = discountAmt > 0 ? `
+                    <tr>
+                      <th colspan="${cs}" class="text-start"><h4 class="mb-0">Discount</h4></th>
+                      <th class="text-end"><h4 class="mb-0">-${currency(discountAmt)}</h4></th>
+                    </tr>` : ''
+		return `
+                <table class="table table-borderless table-sales mb-0">
+                  <tbody>
+                    <tr>
+                      <th colspan="${cs}" class="text-start"><h4 class="mb-0">Subtotal</h4></th>
+                      <th class="text-end"><h4 class="mb-0">${currency(ledgerNum(man.subtotal))}</h4></th>
+                    </tr>
+                    <tr>
+                      <th colspan="${cs}" class="text-start"><h4 class="mb-0">Tax Amount</h4></th>
+                      <th class="text-end"><h4 class="mb-0">${currency(ledgerNum(man.tax))}</h4></th>
+                    </tr>
+                    <tr>
+                      <th colspan="${cs}" class="text-start"><h4 class="mb-0">Total</h4></th>
+                      <th class="text-end"><h4 class="mb-0">${currency(netTotal)}</h4></th>
+                    </tr>
+                    ${discountRow}
+                    <tr>
+                      <th colspan="${cs}" class="text-start"><h4 class="mb-0">Grand Total</h4></th>
+                      <th class="text-end"><h4 class="mb-0">${currency(ledgerNum(man.total))}</h4></th>
+                    </tr>
+                  </tbody>
+                </table>`
+	}
+	/** Satu baris kategori + qty + amount — standard untuk Daily, Monthly, Yearly */
+	function salesReportCategoryRowHtml(trClass, s) {
+		return `<tr class="${trClass}">
+                            <td class="text-start">${s.cate}</td>
+                            <td class="text-center">${s.qnt}</td>
+                            <td class="text-end">${currency(s.amount)}</td>
+                        </tr>`
+	}
+	var mdb_salexpen = function() {
+		const pageSale = document.getElementById('salexpen')
+		const modalPrintEl = document.getElementById('sale_receipt')
+		const modalPrint = mdb.Sidenav.getInstance(modalPrintEl);
+		const dataSale = {}
+		const dataRcpt = {}
+
+		/** @param opts pilihan: opts.posLineSubtotalSlot === true untuk papar baris Total selepas separator (aliran sidebar POS / print-receipt) */
+		async function receiptPaid(data, opts) {
+			opts = opts || {}
+			const wantPosLineSubtotal = opts.posLineSubtotalSlot === true
+			let el = modalPrintEl.querySelector('.receipt-sale-frame div[sales-receipt]')
+			let reportEl = modalPrintEl.querySelector('.receipt-sale-frame div[report-receipt]')
+			let item = data.item || []
+			let toHide = el.querySelectorAll('.to-hide');
+			const lineSubtotal = item.reduce((s, r) => s + ledgerNum(r.amount), 0)
+			const itemRows = item.map((r, n) => {
+				return `<tr>
+                        <td class="itm" style="vertical-align:top; font-size:9pt; width: 50%; text-align: left;">${r.name}</td>
+                        <td class="qnt" style="vertical-align:top; font-size:9pt; width: 15px; text-align: center;">${r.qty}</td>
+                        <td class="prc" style="vertical-align:top; font-size:9pt; width: 100px; text-align: right;">${currency(r.price)}</td>
+                        <td class="amt" style="vertical-align:top; font-size:9pt; width: 130px; text-align: right;">${currency(r.amount)}</td>
+                    </tr>`
+			}).join('')
+			const itemsSubtotalRow = item.length ? `<tr class="receipt-items-subtotal">
+                        <td class="itm" colspan="3" style="vertical-align:top; font-size:9pt; text-align:right; font-weight:600; padding-top:2px;">Total</td>
+                        <td class="amt" style="vertical-align:top; font-size:9pt; width:130px; text-align:right; font-weight:600; padding-top:2px;">${currency(lineSubtotal)}</td>
+                    </tr>` : ''
+			el.querySelector('.receipt-sale-item tbody.clone-row').innerHTML = itemRows
+			const lineSubSlot = el.querySelector('[data-receipt-pos-line-subtotal]')
+			const subtotalTbody = lineSubSlot && lineSubSlot.querySelector('.receipt-items-subtotal-tbody')
+			if (wantPosLineSubtotal && lineSubSlot) {
+				lineSubSlot.classList.remove('d-none')
+				if (subtotalTbody) subtotalTbody.innerHTML = itemsSubtotalRow
+			} else if (lineSubSlot) {
+				lineSubSlot.classList.add('d-none')
+				if (subtotalTbody) subtotalTbody.innerHTML = ''
+			}
+
+			reportEl.style.display = 'none'
+			el.style.display = 'block'
+			el.querySelector('.paid_at').innerHTML = data.paid_at
+			el.querySelector('.table_no').innerHTML = data.desk.name
+			el.querySelector('.receipt_no').innerHTML = 'Inv #:' + data.rcptno
+			el.querySelector('.subtotal').innerHTML = currency(lineSubtotal)
+
+			toHide.forEach(e => e.classList.add('d-none'));
+			if (data.subtotal) toHide.forEach(e => (e.classList.contains('d-none')) && (e.classList.remove('d-none')));
+			
+			const subForSummary = ledgerNum(data.subtotal) || lineSubtotal
+			let netTotal = subForSummary + ledgerNum(data.rest);
+			if (data.rest) el.querySelector('.tax').innerHTML = currency(data.rest)
+			else el.querySelector('.tax').innerHTML = currency(0)
+			el.querySelector('.total').innerHTML = currency(netTotal)
+			
+			if (data.discamt && data.discamt > 0) {
+				el.querySelector('.discount').innerHTML = '-' + currency(data.discamt)
+				el.querySelector('.discount-row').style.display = ''
+			} else {
+				el.querySelector('.discount-row').style.display = 'none'
+			}
+			
+			if (data.grandtotal) el.querySelector('.grand').innerHTML = currency(data.grandtotal)
+			if (data.paid) el.querySelector('.paid').innerHTML = currency(data.paid)
+			if (data.change) el.querySelector('.bal').innerHTML = currency(data.change)
+		}
+		async function initSales() {
+			let find = pageSale.querySelector('#viewdailysale').value;
+			let searchTerm = pageSale.querySelector('#searchrcptno').value.trim().toLowerCase();
+			let res = await axios(APP_URL + 'counter/sales/?find=' + find)
+			let data = res.data ?? []
+			
+			if (searchTerm) {
+				data = data.filter(s => s.rcptno && s.rcptno.toLowerCase().includes(searchTerm))
+			}
+			
+			let tbody = pageSale.querySelector('#sales_list_data');
+			tbody.innerHTML = data.map((s, n) => {
+				let trClass = 'bg-odd';
+				if ((n % 2) > 0) trClass = 'bg-event'
+				dataSale[s.id] = s;
+				dataSale[s.id].paid_at = moment(s).format('DD MMM YYYY hh:mm A');
+				return `<tr class="${trClass}">
+                            <td class="text-center">${s.rcptno}</td>
+                            <td class="text-end">${ currency(s.grandtotal)}</td>
+                            <td class="text-center">${s.order_cnt}</td>
+                            <td class="text-center">${s.desk.code}</td>
+                            <td class="text-center">
+                                <button class="btn bg-black btn-sm px-2 rounded-5 text-success me-1" data-view-receipt idx="${s.id}"><i class="fa fa-eye"></i></button>
+                                <button class="btn bg-success btn-sm px-2 rounded-5 text-white" data-reprint-receipt idx="${s.id}"><i class="fa fa-print"></i></button>
+                            </td>
+                        </tr>`
+			}).join('')
+
+			tbody.querySelectorAll('[data-view-receipt]').forEach(p => {
+				p.addEventListener('click', function(e) {
+					e.preventDefault()
+					let id = this.getAttribute('idx')
+					let data = dataSale[id]
+					receiptPaid(data).then(() => modalPrintEl.querySelector('[data-printout]').click())
+				})
+			})
+			
+			tbody.querySelectorAll('[data-reprint-receipt]').forEach(p => {
+				p.addEventListener('click', function(e) {
+					e.preventDefault()
+					let id = this.getAttribute('idx')
+					axios.get(APP_URL + 'counter/' + id + '/reprint').then(res => {
+						if(res.data.success && res.data.receipt) {
+							receiptPaid(res.data.receipt).then(() => {
+								let html = modalPrintEl.querySelector('#receipt-container').innerHTML
+								printJS(html, 'Receipt Sales')
+							})
+						}
+					}).catch(err => console.error('Reprint error:', err))
+				})
+			})
+		}
+		async function initDaily() {
+			let find = pageSale.querySelector('#viewdaily').value;
+			let res = await axios(APP_URL + 'counter/daily/?find=' + find)
+			let data = res.data ?? []
+			let tbody = pageSale.querySelector('#sales_daily_data');
+			let footer = pageSale.querySelector('#sales_daily_footer');
+			let man = data.man && data.man !== false ? data.man : {};
+			let det = data.det ?? [];
+			dataRcpt.data = det
+			dataRcpt.man = man
+			dataRcpt.date = moment(find).format('DD MMM YYYY')
+			tbody.innerHTML = det.map((s, n) => {
+				let trClass = 'bg-odd';
+				if ((n % 2) > 0) trClass = 'bg-event'
+				return salesReportCategoryRowHtml(trClass, s)
+			}).join('')
+			footer.innerHTML = salesReportSummaryFooterHtml(man)
+		}
+		async function initMonthly() {
+			let find = pageSale.querySelector('#viewmonthly').value;
+			let res = await axios(APP_URL + 'counter/monthly/?find=' + find)
+			let data = res.data ?? []
+			let tbody = pageSale.querySelector('#sales_monthly_data');
+			let footer = pageSale.querySelector('#sales_monthly_footer');
+			let man = data.man && data.man !== false ? data.man : {};
+			let det = data.det ?? [];
+			dataRcpt.data = det
+			dataRcpt.man = man
+			dataRcpt.date = moment(find).format('MMMM YYYY')
+			tbody.innerHTML = det.map((s, n) => {
+				let trClass = 'bg-odd';
+				if ((n % 2) > 0) trClass = 'bg-event'
+				return salesReportCategoryRowHtml(trClass, s)
+			}).join('')
+			footer.innerHTML = salesReportSummaryFooterHtml(man)
+		}
+		async function initYearly() {
+			let find = pageSale.querySelector('#viewyearly').value;
+			let res = await axios(APP_URL + 'counter/yearly/?find=' + find)
+			let data = res.data ?? []
+			let tbody = pageSale.querySelector('#sales_yearly_data');
+			let footer = pageSale.querySelector('#sales_yearly_footer');
+			let man = data.man && data.man !== false ? data.man : {};
+			let det = data.det ?? [];
+			dataRcpt.data = det
+			dataRcpt.man = man
+			dataRcpt.date = find
+			tbody.innerHTML = det.map((s, n) => {
+				let trClass = 'bg-odd';
+				if ((n % 2) > 0) trClass = 'bg-event'
+				return salesReportCategoryRowHtml(trClass, s)
+			}).join('')
+			footer.innerHTML = salesReportSummaryFooterHtml(man)
+		}
+
+		function reportPreview() {
+			let receiptSale = modalPrintEl.querySelector('.receipt-sale-frame div[sales-receipt]')
+			let reportEl = modalPrintEl.querySelector('.receipt-sale-frame div[report-receipt]')
+			let data = dataRcpt
+			let item = dataRcpt.data
+			if (item.length == 0) return;
+			let man = data.man && data.man !== false ? data.man : {}
+
+			reportEl.style.display = 'block'
+			receiptSale.style.display = 'none'
+			reportEl.querySelector('.receipt-sale-item tbody').innerHTML = item.map((r, n) => {
+				return `<tr class="receipt-report-line">
+									<td class="itm receipt-report-line__name">${r.cate}(${r.qnt})</td>
+									<td class="prc receipt-report-line__value">${currency(r.amount)}</td>
+							</tr>`
+			}).join('')
+			reportEl.querySelector('.date_at').innerHTML = 'Report at : ' + data.date
+			let netTotal = ledgerNum(man.subtotal) + ledgerNum(man.tax)
+			reportEl.querySelector('.subtotal').innerHTML = currency(ledgerNum(man.subtotal))
+			reportEl.querySelector('.tax').innerHTML = currency(ledgerNum(man.tax))
+			reportEl.querySelector('.total').innerHTML = currency(netTotal);
+			
+			let discountAmt = ledgerNum(man.discount)
+			if (discountAmt > 0) {
+				reportEl.querySelector('.discount').innerHTML = '-' + currency(discountAmt)
+				reportEl.querySelector('.discount-row-report').style.display = ''
+			} else {
+				reportEl.querySelector('.discount-row-report').style.display = 'none'
+			}
+			
+			reportEl.querySelector('.grand').innerHTML = currency(ledgerNum(man.total));
+			modalPrintEl.querySelector('[data-printout]').click();
+		}
+
+		function initPrintPreview() {
+			pageSale.querySelector('[data-print-daily]').addEventListener('click', function(e) {
+				e.preventDefault()
+				reportPreview()
+			})
+			pageSale.querySelector('[data-print-monthly]').addEventListener('click', function(e) {
+				e.preventDefault()
+				reportPreview()
+			})
+			pageSale.querySelector('[data-print-yearly]').addEventListener('click', function(e) {
+				e.preventDefault()
+				reportPreview()
+			})
+			modalPrintEl.querySelector('[data-printout]').addEventListener('click', function(e) {
+				let html = modalPrintEl.querySelector('#receipt-container').innerHTML
+				e.preventDefault()
+				printJS(html, 'Receipt Sales')
+				modalPrint.hide();
+			})
+		}
+		return {
+			init: function() {
+				initTabs('.report-nav', '.report-page', function(e) {
+					let funName = e.getAttribute('data-fun-name')
+					if (funName === 'initSales') initSales()
+					if (funName === 'initDaily') initDaily()
+					if (funName === 'initMonthly') initMonthly()
+					if (funName === 'initYearly') initYearly()
+				})
+				pageSale.querySelector('#viewdailysale').addEventListener('change', initSales)
+				pageSale.querySelector('#searchrcptno').addEventListener('input', initSales)
+				pageSale.querySelector('#viewdaily').addEventListener('change', initDaily)
+				pageSale.querySelector('#viewmonthly').addEventListener('change', initMonthly)
+				pageSale.querySelector('#viewyearly').addEventListener('change', initYearly)
+				initPrintPreview()
+			},
+			receipt: receiptPaid,
+			sales: async function(data) {
+				receiptPaid(data).then(() => {
+					let html = modalPrintEl.querySelector('#receipt-container').innerHTML
+					printJS(html, 'Receipt Sales')
+				})
+			},
+		}
+	}()
+	mdb_salexpen.init();
+</script>
+@endpush

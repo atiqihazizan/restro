@@ -1,0 +1,72 @@
+/*** receipt sale ***/
+/* Font sokongan Cina / CJK untuk cetakan (bukan isu encoding UTF-8, terutama lebar lajur & font) */
+.receipt-sale-frame,
+.receipt-sale-frame * {
+	font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
+		"Hiragino Sans", "Microsoft YaHei", "Microsoft JhengHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif;
+}
+
+h4.receipt-sale-name {
+	width: 100%;
+	text-align: center;
+	font-weight: 600;
+	font-size: 15pt;
+}
+h5.receipt-sale-logotext {
+	text-align: center;
+	margin-top: 0.9rem;
+	margin-bottom: 0.9rem;
+}
+span.receipt-sale-addr {
+	text-align: center;
+	width: 100%;
+	display: block;
+}
+.receipt-sale-frame,.receipt-frame { padding: 0rem 1rem}
+.receipt-sale-separator,.receipt_separator {border-bottom: 1px dashed black; margin: 0; margin-top: .7rem;margin-bottom: .7rem;}
+table.receipt-sale-infopaid * {font-size: 11pt;}
+table.receipt-sale-item, table.receipt-sale-infopaid {width: 100%;}
+table.receipt-sale-item td:first-child { text-align: left;}
+table.receipt-sale-item td:nth-child(2) { text-align: left; width: 10px;}
+table.receipt-sale-item td:last-child,
+table.receipt-sale-infopaid td:last-child {text-align: right; width: 80px}
+
+/* Resit jualan 4 lajur — jangan guna :nth-child(n-2) (akan picit lajur 1 & 2 ke 50px) */
+div[sales-receipt] table.receipt-sale-item td.prc { text-align: right; width: 100px;}
+div[sales-receipt] table.receipt-sale-item td.amt { text-align: right;}
+
+/* Laporan jualan 2 lajur (reportPreview) — lebar & saiz font selaras ringkasan */
+[report-receipt] table.receipt-sale-item { table-layout: fixed; }
+[report-receipt] table.receipt-sale-item td.itm {
+	font-size: 9pt;
+	text-align: left !important;
+	width: auto !important;
+	word-break: break-word;
+	vertical-align: top;
+}
+[report-receipt] table.receipt-sale-item td.prc {
+	font-size: 9pt;
+	text-align: right !important;
+	width: 5.5rem !important;
+	white-space: nowrap;
+	vertical-align: top;
+}
+[report-receipt] table.receipt-sale-infopaid *,
+[report-receipt] table.receipt-sale-infopaid td {
+	font-size: 9pt !important;
+}
+[report-receipt] .receipt-sale-date_at.date_at {
+	font-size: 9pt;
+	font-weight: 700;
+}
+
+/* Laporan jualan (reportPreview): tarikh + ringkasan tebal */
+[report-receipt] table.receipt-sale-infopaid td {
+	font-weight: 700;
+}
+
+#print_order .sidebav_print_container * { color: black}
+
+@media print {
+	* {color:black !important; border-color: black !important;}
+}
