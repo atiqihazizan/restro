@@ -74,7 +74,6 @@ body { position: relative}
 /* Grid meja: public/css/grid-cards.css (.pos [data-table-list]) */
 .pos #pos-desk {
 	min-height: 0;
-	background-color: var(--card-grid-canvas);
 }
 .pos #pos-desk .pos-table {
 	min-height: 0;

@@ -1,0 +1,235 @@
+/**
+ * grid-cards.css — grid kad seragam: senarai meja (POS) & senarai menu (ordering).
+ *
+ * Dimuat melalui @import dari:
+ *   - counter.css → halaman kaunter staf (POS, jualan, item, dapur, papan pemuka)
+ *   - style.css   → halaman ordering pelanggan (pilih meja, menu)
+ *
+ * Grep: data-table-list, data-menu-list, menu-list-grid, --grid-card-row
+ *
+ * Ubah saiz sel grid: --grid-card-min (lebar min lajur), --grid-card-row (tinggi baris tetap).
+ * Fon menu ordering sahaja: laraskan --menu-card-title-size & --menu-card-price-size di bawah.
+ * Fokus meja POS: --pos-table-focus-ring & --pos-table-focus-glow (warna cerah, jelas pada hijau/merah).
+ *
+ * --card-grid-canvas: latar grid meja (bukan hitam tulen #000) supaya box-shadow gelap pada kad kelihatan.
+ */
+:root {
+	--grid-card-min: 230px;
+	--grid-card-row: 230px;
+	--grid-card-gap: 2rem;
+	--grid-card-pad: 2rem;
+	/* Latar grid sedikit cerah supaya kad “soft 3D” kontras tanpa keras */
+	/* --card-grid-canvas: #25252c; */
+	/* --card-grid-canvas: #606060; */
+	--card-grid-canvas: #151515;
+	/* Kad meja POS — iOS-style cerah, bayang lembut, aktif 1.5px #4CAF50 */
+	--pos-table-squircle: 16px;
+	--pos-table-active-ring: #4caf50;
+	/* Glory (teks + outline kad aktif) — empat lapisan sama */
+	--pos-table-active-glory-layers:
+		0 0 4px rgba(255, 255, 220, 0.95),
+		0 0 12px rgba(255, 230, 120, 0.85),
+		0 0 20px rgba(255, 200, 80, 0.45),
+		0 1px 2px rgba(0, 0, 0, 0.55);
+	--pos-table-shadow-down: 0 4px 10px rgba(0, 0, 0, 0.3);
+	--pos-table-shadow-down-hover: 0 6px 14px rgba(0, 0, 0, 0.22);
+	--pos-table-top-glass: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+	--pos-table-focus-ring: #ffeb3b;
+	--pos-table-focus-glow: rgba(255, 235, 59, 0.95);
+	/* Tipografi kad menu (ordering) — naikkan nilai rem / vw jika mahu lebih besar */
+	--menu-card-title-size: clamp(1.55rem, 3.2vw, 2.15rem);
+	--menu-card-price-size: clamp(1.3rem, 2.6vw, 1.7rem);
+}
+
+.pos [data-table-list] {
+	background-color: var(--card-grid-canvas);
+}
+
+.pos [data-table-list],
+#menu-container .foods.menu-list-grid[data-menu-list] {
+	margin: 0 auto;
+	width: 100%;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(var(--grid-card-min), 1fr));
+	grid-auto-rows: var(--grid-card-row);
+	gap: var(--grid-card-gap);
+	padding: var(--grid-card-pad);
+	font-family: sans-serif;
+	overflow-y: auto;
+	align-content: start;
+	box-sizing: border-box;
+}
+
+#menu-container .foods.menu-list-grid[data-menu-list] {
+	height: calc(100vh - 70px);
+}
+
+.pos [data-table-list] {
+	min-height: 0;
+}
+
+.pos [data-table-list] .card .card-body .card-title,
+#menu-container .foods.menu-list-grid[data-menu-list] .card .card-body .card-title {
+	text-align: center;
+}
+
+/* ========== POS: kad meja (squircle, tiada outline biasa, hijau + glow hanya .active) ========== */
+
+.pos [data-table-list] a.view-order.pos-table-tile {
+	display: block;
+	height: 100%;
+	min-height: 0;
+	border-radius: var(--pos-table-squircle);
+}
+
+.pos [data-table-list] a.view-order.pos-table-tile:focus {
+	outline: none;
+}
+
+.pos [data-table-list] a.view-order.pos-table-tile:focus-visible {
+	outline: 2px solid var(--pos-table-active-ring);
+	outline-offset: 3px;
+	border-radius: calc(var(--pos-table-squircle) + 3px);
+}
+
+.pos [data-table-list] .pos-table-card {
+	height: 100%;
+	min-height: 0;
+	box-sizing: border-box;
+	border: none !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+	border-radius: var(--pos-table-squircle) !important;
+	outline: none !important;
+	box-shadow: var(--pos-table-top-glass), var(--pos-table-shadow-down);
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Tiada outline/sisi lain — gradient cerah (mid-tone), bukan hampir hitam */
+.pos [data-table-list] .pos-table-card--s0 {
+	background: linear-gradient(180deg, #5a5a5a 0%, #454545 45%, #3e3e3e 100%) !important;
+}
+
+.pos [data-table-list] .pos-table-card--s1 {
+	background: linear-gradient(180deg, #81c784 0%, #4caf50 50%, #2e7d32 100%) !important;
+}
+
+.pos [data-table-list] .pos-table-card--s2,
+.pos [data-table-list] .pos-table-card--s3,
+.pos [data-table-list] .pos-table-card--s4 {
+	background: linear-gradient(180deg, #e57373 0%, #e53935 48%, #d32f2f 100%) !important;
+}
+
+.pos [data-table-list] .pos-table-card-body {
+	min-height: 0;
+	overflow: hidden;
+	background: transparent !important;
+}
+
+.pos [data-table-list] .pos-table-card-title {
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.pos [data-table-list] .pos-table-line {
+	display: block;
+	line-height: 1.15;
+}
+
+.pos [data-table-list] .pos-table-line--label {
+	font-size: clamp(1.2rem, 3.2vw, 2.7rem);
+	font-weight: 600;
+}
+
+.pos [data-table-list] .pos-table-line--num {
+	font-size: clamp(1.85rem, 5.2vw, 4.95rem);
+	font-weight: 700;
+	margin-top: 0.35rem;
+}
+
+.pos [data-table-list] .pos-table-line--single {
+	font-size: clamp(1.5rem, 4vw, 2.25rem);
+	font-weight: 700;
+}
+
+/* Hover (bukan aktif): angkat lembut — tanpa ring */
+.pos [data-table-list] a.view-order.pos-table-tile:not(.active):hover .pos-table-card {
+	transform: translateY(-2px);
+	box-shadow: var(--pos-table-top-glass), var(--pos-table-shadow-down-hover);
+}
+
+.pos [data-table-list] a.view-order.pos-table-tile.active:hover .pos-table-card {
+	transform: translateY(-1px);
+}
+
+/* Aktif: highlight atas + bayang + outline glory (sama lapisan seperti text-shadow teks) + glow teks */
+.pos [data-table-list] a.view-order.pos-table-tile.active .pos-table-card {
+	transform: translateY(-1px);
+	box-shadow:
+		var(--pos-table-top-glass),
+		var(--pos-table-shadow-down),
+		var(--pos-table-active-glory-layers) !important;
+}
+
+.pos [data-table-list] a.view-order.pos-table-tile.active .pos-table-card-title,
+.pos [data-table-list] a.view-order.pos-table-tile.active .pos-table-line {
+	color: #fffef8;
+	text-shadow: var(--pos-table-active-glory-layers);
+}
+
+/* Grid menu ordering (bukan POS): kekalkan */
+#menu-container .foods.menu-list-grid[data-menu-list] .card {
+	height: 100%;
+	min-height: 0;
+	box-sizing: border-box;
+}
+
+.pos [data-table-list] .btn-add-order {
+	box-sizing: border-box;
+	height: 100%;
+	min-height: 0;
+}
+
+.pos [data-table-list] .btn-rem-order {
+	position: absolute;
+	bottom: 1rem;
+	left: 1.5rem;
+}
+
+#menu-container .foods.menu-list-grid[data-menu-list] .btn-add-order,
+#menu-container .foods.menu-list-grid[data-menu-list] .card {
+	height: 100%;
+	width: 100%;
+	min-height: 0;
+	box-sizing: border-box;
+}
+
+#menu-container .foods.menu-list-grid[data-menu-list] a.btn {
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+	min-height: 0;
+	position: relative;
+}
+
+#menu-container .foods.menu-list-grid[data-menu-list] .btn-rem-order {
+	position: absolute;
+	bottom: 1rem;
+	left: 1.5rem;
+}
+
+#menu-container .foods.menu-list-grid[data-menu-list] .card .card-body {
+	min-height: 0;
+	overflow: hidden;
+}
+
+#menu-container .foods.menu-list-grid[data-menu-list] .card .card-body .card-title {
+	font-size: var(--menu-card-title-size);
+	line-height: 1.2;
+	font-weight: 700;
+}
+
+#menu-container .foods.menu-list-grid[data-menu-list] .card .card-body .card-text {
+	font-size: var(--menu-card-price-size);
+	line-height: 1.3;
+	font-weight: 600;
+}

@@ -345,7 +345,7 @@
 						inputPay = modalCalc.querySelector('[data-pay]')
 
 						bill.bal = bill.grand - bill.amt
-						inputBal.textContent = currency(bill.bal)
+						inputBal.textContent = currency(bill.bal.toString())
 					}
 				})
 			})
@@ -383,12 +383,12 @@
 			function resetPanelPay() {
 				keyPay = ''
 				const sub = Number(bill.total) || 0
-				inputTotal.textContent = currency(sub);
-				inputGrand.textContent = currency(sub);
-				inputPay.textContent = currency(0);
-				inputTax.textContent = currency(0);
-				inputDisc.textContent = currency(0);
-				inputBal.textContent = currency(sub);
+				inputTotal.textContent = sub.toFixed(2);
+				inputGrand.textContent = sub.toFixed(2);
+				inputPay.textContent = '0.00';
+				inputTax.textContent = '0.00';
+				inputDisc.textContent = '0.00';
+				inputBal.textContent = sub.toFixed(2);
 				modalEl.querySelector('[data-tax-percent]').textContent = '(0%)';
 				modalEl.querySelector('[data-disc-percent]').textContent = '(0%)';
 				bill.amt = 0

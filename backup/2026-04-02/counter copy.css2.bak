@@ -1,10 +1,3 @@
-@import url('grid-cards.css');
-
-/**
- * counter.css — halaman kaunter staf: POS, jualan/laporan, senarai item, dapur (ikut view).
- * Grid kad meja POS di grid-cards.css (sama token dengan grid menu ordering).
- */
-
 html,body { overflow: hidden; width: 100vw; height: 100vh;}
 body { position: relative}
 .gray-black {background-color: #26272c; color: #f5f5f5;}
@@ -71,23 +64,26 @@ body { position: relative}
 .dashboard .dash-sidebar .dash-box {height: 100%}
 
 /*** page POS ***/
-/* Grid meja: public/css/grid-cards.css (.pos [data-table-list]) */
-.pos #pos-desk {
-	min-height: 0;
-	background-color: var(--card-grid-canvas);
+.pos .pos-content-food .card .card-body .card-title { text-align: center}
+.pos .pos-content-food {
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    /*grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));*/
+    /* grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); */
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    /* grid-auto-rows: auto; */
+    grid-auto-rows: minmax(230px, auto);
+    gap: 2rem;
+    padding: 2rem;
+    font-family: sans-serif;
+    overflow-y: auto;
+    /* height: calc(100vh - 70px); */
 }
-.pos #pos-desk .pos-table {
-	min-height: 0;
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-	height: 100%;
-}
-.pos #pos-desk .pos-table [data-table-list] {
-	flex: 1;
-	min-height: 0;
-}
+.pos .pos-content-food .btn-add-order {box-sizing: border-box; }
+.pos .pos-content-food .btn-add-order { height: 210px }
+.pos .pos-content-food .card { height: 100% }
+.pos .pos-content-food .btn-rem-order { position : absolute; bottom: 1rem; left: 1.5rem}
 .pos .pos-content-cate a.cate-link {
     background: #26272c;
     width: 128px;height: 105px;

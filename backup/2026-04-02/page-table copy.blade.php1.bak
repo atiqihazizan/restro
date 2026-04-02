@@ -25,11 +25,18 @@
             let data = res.data
             document.querySelector('.tables').innerHTML = data.map((t,n) => {
                 // sts = 0: no order 1:pre-order 2:confirm/cooking 3:ready delivery 4:to pay
-                const faceClass = t.sts > 0 ? 'desk-table--busy' : 'desk-table--free'
+                // let bgcolor = ['border border-success','bg-success border border-success','bg-danger border border-danger','bg-danger border border-danger'];
+                let tm = '';
+                if(t.sts > 0) tm = t.odrtm?moment(t.odrtm).format('HH:m'):''
                 return `<a href="#page_2" idx="${ t.id }" class="btn btn-block rounded-9 card-btn goto">
-                <div class="card desk-table-face ${faceClass} text-capitalize rounded-9">
-                    <div class="card-body py-4 text-center d-flex flex-column justify-content-center align-items-center">
-                        <h5 class="card-title fw-600 fs-3 mb-0 text-white">${ t.name }</h5>
+                <div class="card border border-success text-capitalize rounded-9">
+                    <div class="card-body py-3 text-start">
+                        <h5 class="card-title d-flex justify-content-between">
+                            <span class="fw-600 fs-3">${ t.name }</span>
+                            <!--span class="fs-3">${tm}</span-->
+                        </h5>
+                        <div class="card-content card-descrip" style="height: calc(100% - 70px)"></div>
+                        <!--span class="info fs-5 fw-500">${ t.odrcnt?'Ordered '+t.odrcnt+' items':'No Order' }</span-->
                     </div>
                 </div>
             </a>`

@@ -21,12 +21,6 @@ body { position: relative}
 .fw-500 {font-weight: 500}
 .fw-600 {font-weight: 600}
 
-/* Latar halaman pilih meja: kelabu gelap (bukan #000) supaya bayang kad kontras */
-#page_1.page-frame.bg-black,
-#desk-container {
-	background-color: var(--card-grid-canvas) !important;
-}
-
 /*** page 1 — senarai meja pelanggan ***/
 .tables {
 	margin: 0 auto;
@@ -113,83 +107,11 @@ body { position: relative}
 	border-radius: 24px;
 }
 
-/*** page 2 — menu + panel pesanan tetap kanan ***/
-.ordering-menu-shell {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	min-height: calc(100vh - 70px);
-	box-sizing: border-box;
-}
-
-.ordering-menu-row {
-	display: flex;
-	flex: 1 1 auto;
-	align-items: stretch;
-	min-height: 0;
-	width: 100%;
-}
-
-#listcate {
-	flex: 0 0 168px;
-	width: 168px;
-	min-width: 168px;
-	max-width: 168px;
-	background-color: #333;
-	box-sizing: border-box;
-}
-
-#listmenu {
-	flex: 1 1 auto;
-	min-width: 0;
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
-	box-sizing: border-box;
-}
-
-/* Grid menu mengisi ruang antara kategori dan panel pesanan */
-#menu-container .ordering-menu-row #listmenu .foods.menu-list-grid[data-menu-list] {
-	height: 100% !important;
-	min-height: 0;
-	flex: 1 1 auto;
-}
-
-/* Panel pesanan tetap (bekas drawer sidenav) */
-.order-cart-dock {
-	flex: 0 0 356px;
-	width: 356px;
-	max-width: 356px;
-	min-width: 280px;
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
-	background-color: #393939;
-	border-left: 1px solid rgba(255, 255, 255, 0.08);
-	box-shadow: -6px 0 18px rgba(0, 0, 0, 0.25);
-	box-sizing: border-box;
-	z-index: 2;
-}
-
-.order-cart-dock__bar {
-	flex: 0 0 auto;
-	min-height: 52px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.order-cart-dock__scroll {
-	flex: 1 1 auto;
-	min-height: 0;
-	overflow-y: auto;
-	overflow-x: hidden;
-	-webkit-overflow-scrolling: touch;
-	padding: 0 0.5rem;
-	box-sizing: border-box;
-}
-
-.order-cart-dock__footer {
-	flex: 0 0 auto;
-}
+/*** page 2 ***/
+#menu-container { display: inline-flex }
+/*#listcate { width: 120px; }*/
+#listcate { width: 168px; background-color: #333; }
+#listmenu { width: calc(100vw - 168px); }
 #scrollCateContainer {
 	height: calc(100vh - 70px);
 	width: 100%;

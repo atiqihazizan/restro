@@ -1,0 +1,193 @@
+@import url('grid-cards.css');
+
+/**
+ * style.css — halaman ordering (pelanggan): pilih meja, menu, sidenav pesanan.
+ * Grid kad menu (sama corak dengan meja POS) di grid-cards.css.
+ */
+
+html,body { overflow: hidden; width: 100vw; height: 100vh;}
+body { position: relative}
+.gray-black {background-color: #393939; color: #f5f5f5;}
+.h-topbar { height: 70px !important;}
+.page-frame {width: 100vw;  height: calc(100vh ) }
+
+::-webkit-scrollbar {width: 5px;}
+::-webkit-scrollbar-track {background: transparent;}
+::-webkit-scrollbar-thumb {background: dimgray;}
+::-webkit-scrollbar-thumb:hover {background: dimgray;}
+
+.fw-300 {font-weight: 300}
+.fw-400 {font-weight: 400}
+.fw-500 {font-weight: 500}
+.fw-600 {font-weight: 600}
+
+/*** page 1 ***/
+.tables {
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-auto-rows: auto;
+    gap: 1rem;
+    font-family: sans-serif;
+    padding: 1rem;
+    overflow-y: auto;
+    height: calc(100vh - 70px)
+}
+.tables * { background-color: transparent; color: white }
+.tables .card-btn {box-sizing: border-box; padding:0; margin:0}
+.tables .card-btn .card { height: 100% }
+
+/*** page 2 ***/
+#menu-container { display: inline-flex }
+/*#listcate { width: 120px; }*/
+#listcate { width: 168px; background-color: #333; }
+#listmenu { width: calc(100vw - 168px); }
+#scrollCateContainer {
+	height: calc(100vh - 70px);
+	width: 100%;
+	overflow-y: auto;
+	background-color: #333;
+	box-sizing: border-box;
+}
+
+/* Bar kategori: tanpa ul/li — stack flex + kad “timbul” 3D */
+.cate-scroll-stack {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.85rem 0.45rem 1.25rem;
+	box-sizing: border-box;
+}
+
+.cate-card.cate-link {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	width: 100%;
+	max-width: 132px;
+	min-height: 104px;
+	padding: 0.65rem 0.4rem;
+	border: 0;
+	border-radius: 22px;
+	background: linear-gradient(160deg, #3d3d3d 0%, #2c2c2c 100%);
+	color: #fff;
+	text-decoration: none;
+	cursor: pointer;
+	box-shadow:
+		8px 8px 18px rgba(0, 0, 0, 0.55),
+		-4px -4px 12px rgba(100, 100, 100, 0.08),
+		inset 0 1px 0 rgba(255, 255, 255, 0.07);
+	transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.cate-card.cate-link:hover {
+	box-shadow:
+		10px 10px 22px rgba(0, 0, 0, 0.6),
+		-3px -3px 10px rgba(120, 120, 120, 0.1),
+		inset 0 1px 0 rgba(255, 255, 255, 0.09);
+	transform: translateY(-1px);
+}
+
+.cate-card.cate-link:focus {
+	outline: none;
+}
+
+.cate-card.cate-link:focus-visible {
+	outline: 2px solid #adff2f;
+	outline-offset: 3px;
+	box-shadow:
+		8px 8px 18px rgba(0, 0, 0, 0.55),
+		0 0 0 3px rgba(173, 255, 47, 0.25);
+}
+
+.cate-card.cate-link.is-active {
+	background: linear-gradient(160deg, #484848 0%, #383838 100%);
+	box-shadow:
+		inset 5px 5px 14px rgba(0, 0, 0, 0.55),
+		inset -2px -2px 8px rgba(140, 140, 140, 0.12),
+		0 0 0 2px rgba(173, 255, 47, 0.5),
+		0 0 18px rgba(173, 255, 47, 0.2);
+	transform: translateY(1px);
+}
+
+.cate-card.cate-link.is-active:hover {
+	transform: translateY(0);
+}
+
+.cate-card-icon {
+	width: 48px;
+	height: 48px;
+	margin: 0 auto 0.35rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #adff2f;
+}
+
+.cate-card-icon svg {
+	width: 42px;
+	height: 42px;
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.cate-card-icon svg path,
+.cate-card-icon svg circle,
+.cate-card-icon svg line,
+.cate-card-icon svg polyline,
+.cate-card-icon svg rect {
+	stroke: currentColor;
+}
+
+.cate-card-label {
+	font-size: 0.95rem;
+	font-weight: 500;
+	line-height: 1.2;
+	color: #fff;
+}
+
+.cate-card.cate-link.is-active .cate-card-icon {
+	filter: drop-shadow(0 0 8px rgba(173, 255, 47, 0.45));
+}
+div#scrollCateContainer::-webkit-scrollbar {
+    width: 5px;
+}
+.foods {
+    margin: 0 auto;
+    /*width: 100%;*/
+    /*display: grid;*/
+    /*grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));*/
+    /*grid-auto-rows: auto;*/
+    /*gap: 1rem;*/
+    /*padding: 1rem;*/
+    font-family: sans-serif;
+    overflow-y: auto;
+    height: calc(100vh - 70px);
+}
+.foods .btn-add-order {box-sizing: border-box; }
+/*.foods .btn-add-order, .foods .card { height: 100% }*/
+.foods a.btn, .foods .btn-add-order, .foods .card { height: 160px; width: 160px; }
+.foods a.btn { margin: .5rem }
+.foods .card { background-size: contain}
+.foods .disp-counter,.foods .disp-counter span.count-item {height: 40px;}
+.foods .disp-counter span.count-item {width: 40px;display: inline-table;text-align: center; font-size: 1.3rem; border-radius: 50%; padding-top: 5px}
+.foods .btn-rem-order { position : absolute; bottom: 1rem; left: 1.5rem}
+.foods .card-content { min-height: 50px }
+
+/* Grid menu: public/css/grid-cards.css (#menu-container .foods.menu-list-grid[data-menu-list]) */
+
+.sidenav .list-group-icon { width: 70px; height: 70px; background-color: white; border-radius: 10px; }
+.rowitem { border-bottom: 1px dashed rgb(245 237 237 / 30%);}
+.order-item { width: 100%; color: lightgrey }
+.order-item * { color: lightgrey }
+.order-item td { vertical-align: top; padding-right: 0 }
+.order-item td table { width: 100% }
+.order-item td table tr:first-child td { padding: 0 1rem .5rem 0; vertical-align: middle }
+.order-item td table tr:not(:first-child) td { padding: .5rem 1rem 0rem 0; vertical-align: middle }
+.sideright-footer { height: 130px }
+.sum-total { background-color:dimgrey }
+/*a[data-value] { height: 200px }*/

@@ -26,7 +26,7 @@ span.receipt-sale-addr {
 	display: block;
 }
 .receipt-sale-frame,.receipt-frame { padding: 0rem 1rem}
-.receipt-sale-separator,.receipt_separator {border-bottom: 1px dashed #000000; margin: 0; margin-top: .7rem;margin-bottom: .7rem;}
+.receipt-sale-separator,.receipt_separator {border-bottom: 1px dashed black; margin: 0; margin-top: .7rem;margin-bottom: .7rem;}
 table.receipt-sale-infopaid * {font-size: 11pt;}
 table.receipt-sale-item, table.receipt-sale-infopaid {width: 100%;}
 table.receipt-sale-item td:first-child { text-align: left;}
@@ -73,44 +73,11 @@ div[sales-receipt] table.receipt-sale-item td.amt { text-align: right;}
 	font-weight: 700;
 }
 
-/*
- * Teks hitam pekat: skop kepada resit/order cetak sahaja.
- * (Elak patah tema gelap pada halaman penuh — print.css juga dimuat dalam #receipt-container / #order-print-container.)
- * Iframe printJS hanya isi HTML dalaman; guna .receipt-sale-frame / .receipt-frame / atribut sales-receipt & report-receipt.
- */
-html,
-body {
-	-webkit-print-color-adjust: exact;
-	print-color-adjust: exact;
-}
-#receipt-container,
-#receipt-container *,
-#order-print-container,
-#order-print-container *,
-.receipt-sale-frame,
-.receipt-sale-frame *,
-div[sales-receipt],
-div[sales-receipt] *,
-[report-receipt],
-[report-receipt] *,
-.receipt-frame,
-.receipt-frame *,
-.print_order-item,
-.print_order-item * {
-	color: #000000 !important;
-	-webkit-text-fill-color: #000000 !important;
-}
-
-#print_order .sidebav_print_container * {
-	color: #000000 !important;
-	-webkit-text-fill-color: #000000 !important;
-}
+#print_order .sidebav_print_container * { color: black}
 #print_order .receipt-frame,
 #print_order .receipt-frame *,
 #print_order .print_order-item,
 #print_order .print_order-item * {
-	color: #000000 !important;
-	-webkit-text-fill-color: #000000 !important;
 	font-family: "Noto Sans SC", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
 		"Hiragino Sans", "Microsoft YaHei", "Microsoft JhengHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif;
 }
@@ -120,16 +87,7 @@ div[sales-receipt] *,
 }
 
 @media print {
-	html,
-	body {
-		-webkit-print-color-adjust: exact !important;
-		print-color-adjust: exact !important;
-	}
-	* {
-		color: #000000 !important;
-		-webkit-text-fill-color: #000000 !important;
-		border-color: #000000 !important;
-	}
+	* {color:black !important; border-color: black !important;}
 	.receipt-sale-frame,
 	.receipt-sale-frame *,
 	.receipt-frame,

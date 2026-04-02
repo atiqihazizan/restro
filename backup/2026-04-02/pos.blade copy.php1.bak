@@ -258,6 +258,7 @@
 						inputGrand.textContent = currency(bill.grand);
 
 						bill.bal = bill.grand - (bill.amt || 0);
+						if (bill.amt == 0) bill.bal = 0;
 						inputBal.textContent = currency(bill.bal);
 					}
 				} catch (err) {
@@ -296,7 +297,8 @@
 							bill.amt = 0
 							inputAmt.textContent = currency(0)
 							bill.bal = bill.grand - bill.amt
-							inputBal.textContent = currency(bill.bal)
+							if (bill.amt == 0) bill.bal = 0
+							inputBal.textContent = currency(bill.bal.toString())
 						}
 						return
 					}
@@ -345,7 +347,8 @@
 						inputPay = modalCalc.querySelector('[data-pay]')
 
 						bill.bal = bill.grand - bill.amt
-						inputBal.textContent = currency(bill.bal)
+						if (bill.amt == 0) bill.bal = 0
+						inputBal.textContent = currency(bill.bal.toString())
 					}
 				})
 			})
@@ -382,21 +385,20 @@
 
 			function resetPanelPay() {
 				keyPay = ''
-				const sub = Number(bill.total) || 0
-				inputTotal.textContent = currency(sub);
-				inputGrand.textContent = currency(sub);
-				inputPay.textContent = currency(0);
-				inputTax.textContent = currency(0);
-				inputDisc.textContent = currency(0);
-				inputBal.textContent = currency(sub);
+				inputTotal.textContent = bill.total.toFixed(2);
+				inputGrand.textContent = bill.total.toFixed(2);
+				inputPay.textContent = '0.00';
+				inputTax.textContent = '0.00';
+				inputDisc.textContent = '0.00';
+				inputBal.textContent = '0.00';
 				modalEl.querySelector('[data-tax-percent]').textContent = '(0%)';
 				modalEl.querySelector('[data-disc-percent]').textContent = '(0%)';
 				bill.amt = 0
+				bill.bal = 0
 				bill.tax = 0
 				bill.disc = 0
-				bill.net = sub
-				bill.grand = sub
-				bill.bal = sub
+				bill.net = 0;
+				bill.grand = 0;
 				bill.taxnum = 0;
 				bill.discnum = 0;
 

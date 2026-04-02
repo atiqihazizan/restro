@@ -1,27 +1,125 @@
 <link rel="stylesheet" href="{{ URL::asset('/css/style.css') }}">
-<div id="menu-container" class="ordering-menu-shell">
-	<div class="ordering-menu-row">
-		<div id="listcate">
-			<div id="scrollCateContainer">
-				<div class="cate-scroll-stack" id="cate_list" role="navigation" aria-label="Kategori menu">
-					@foreach($cate??[] as $c)
-					@continue($c->menu->count() == 0)
-					<a class="cate-card cate-link" href="#" idx="{{ $c->id }}" role="button">
-						<span class="cate-card-icon">{!! $c->icon??'' !!}</span>
-						<span class="cate-card-label">{{ $c->name }}</span>
-					</a>
-					@endforeach
-				</div>
+<div id="menu-container">
+	<div class="h-topbar"></div>
+	<div id="listcate">
+		<div id="scrollCateContainer">
+			<div class="cate-scroll-stack" id="cate_list" role="navigation" aria-label="Kategori menu">
+				@foreach($cate??[] as $c)
+				@continue($c->menu->count() == 0)
+				<a class="cate-card cate-link" href="#" idx="{{ $c->id }}" role="button">
+					<span class="cate-card-icon">{!! $c->icon??'' !!}</span>
+					<span class="cate-card-label">{{ $c->name }}</span>
+				</a>
+				@endforeach
 			</div>
 		</div>
-		<div id="listmenu" class="bg-black">
-			<div class="foods menu-list-grid" id="listmenu_items" data-menu-list></div>
-		</div>
-		@include('ordering.partials.siderightbar')
+	</div>
+	<div id="listmenu" class="bg-black">
+		<div class="foods menu-list-grid" id="listmenu_items" data-menu-list></div>
 	</div>
 </div>
 
 @push('modal')
+<div id="confirm_order"
+	class="sidenav gray-black shadow-0"
+	role="navigation"
+	data-scroll-container="#scrollOrderContainer"
+	data-backdrop-class="backdrop-63"
+	data-width="356"
+	data-content="main"
+	data-right="true">
+	<div class="d-flex navbar container-fluid h-topbar shadow-0">
+		<div class="d-flex w-100 justify-content-between">
+			<button class="btn fw-600 text-white shadow-0 btn-lg text-capitalize" data-toggle="sidenav" data-target="#confirm_order">Close</button>
+			@include('ordering.partials.toprightbar')
+		</div>
+	</div>
+	<div id="scrollOrderContainer" style="height: 100vh">
+		<table class="order-item table-sm table-borderless mt-3 text-light">
+			<tbody class="order-item-master d-none">
+				<tr class="rowitem" fid="">
+					<td width="70" class=""><img src="{{ URL::asset('img/icon/dinning.svg') }}" alt="" class="list-group-icon" /></td>
+					<td class="">
+						<h5 class="fw-600 mb-3" item-name>Chat Masala</h5>
+						<table class="table-sm table-borderless">
+							<tr>
+								<td class="pe-0" style="width: 1px"><button class="btn btn-success btn-sm qty-rem"><span class="fa fa-minus"></span></button></td>
+								<td class="px-2 text-center" style="width: 60px"><span class="h6 fw-600" item-qty>4</span></td>
+								<td class="" style="width: 1px"><button class="btn btn-success btn-sm qty-add"><span class="fa fa-plus"></span></button></td>
+								<td class=" text-end"><span class="h6 fw-600" item-amt>20.00</span></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</tbody>
+			<tbody id="order-list"></tbody>
+		</table>
+	</div>
+	<div class="sideright-footer">
+		<table class="table table-borderless p-0">
+			<tr class="sum-total">
+				<th class="text-start align-middle"><span class="fs-5 text-light fw-500 align-middle">Total Amount</span></th>
+				<th class="text-end align-middle"><span class="fs-4 text-light fw-600" order-total>0.00</span></th>
+			</tr>
+			<tr>
+				<th colspan="2" class="p-0">
+					<button class="btn btn-lg btn-success fw-400 fs-5 btn-block py-3 rounded-0 shadow-0 text-capitalize"
+						id="confirm-order-button" data-toggle="sidenav" data-target="#confirm_order">Finish Ordering</button>
+				</th>
+			</tr>
+		</table>
+	</div>
+</div>
+{{--<div id="finish_order"
+         class="sidenav gray-black shadow-0"
+         role="navigation"
+         data-scroll-container="#scrollOrderContainer"
+         data-backdrop-class="backdrop-63"
+         data-width="356"
+         data-content="main"
+         data-right="true"
+         style="z-index: 100000"
+    >
+        <div class="d-flex navbar container-fluid h-topbar shadow-0">
+            <div class="d-flex w-100 justify-content-between align-middle">
+                <h5 class="fw-600 text-white  mb-0 fs-6 align-middle pt-3 ms-3">Order List</h5>
+                <a href="#page_1" class="btn btn-link btn-lg text-success fw-500 goto nav-link-page"
+                   id="back-to-table" data-toggle="sidenav" data-target="#finish_order">Back to Table</a>
+            </div>
+        </div>
+        <div id="scrollOrderContainer" style="height: 100vh">
+            <table class="order-item table-sm table-borderless mt-3 text-light">
+                <tbody class="finish-item-master d-none">
+                <tr class="rowitem" fid="">
+                    <td width="70" class=""><img src="{{ $f->img??URL::asset('img/icon/dinning.svg') }}" alt="" class="list-group-icon" /></td>
+										<td class="">
+											<h5 class="fw-600 mb-3" item-name>Chat Masala</h5>
+											<table class="table-sm table-borderless">
+												<tr>
+													<td class="">x &nbsp;<span class="h6 fw-600" item-qty>4</span></td>
+													<td class="text-end"><span class="h6 fw-600" item-amt>20.00</span></td>
+												</tr>
+											</table>
+										</td>
+										</tr>
+										</tbody>
+										<tbody id="finish-list"></tbody>
+</table>
+</div>
+<div class="sideright-footer">
+	<table class="table table-borderless p-0">
+		<tr class="sum-total">
+			<th class="text-start align-middle"><span class="fs-5 text-light fw-500 align-middle">Total Amount</span></th>
+			<th class="text-end align-middle"><span class="fs-4 text-light fw-600" finish-total>0.00</span></th>
+		</tr>
+		<tr>
+			<th colspan="2" class="p-0">
+				<button class="btn btn-lg btn-success fw-400 fs-5 btn-block py-3 rounded-0 shadow-0 text-capitalize mt-0" id="add-more-button">Add More Items</button>
+			</th>
+		</tr>
+	</table>
+</div>
+</div>--}}
 <div id="print_order"
 	class="sidenav gray-black"
 	role="navigation"
@@ -66,6 +164,7 @@
 			sts: 2
 		}
 		const tempOrderItem = document.querySelector('.order-item-master').cloneNode(true)
+		const confirmOrder = mdb.Sidenav.getInstance(document.getElementById('confirm_order'));
 		var listOrder = {}
 		var orderData;
 
