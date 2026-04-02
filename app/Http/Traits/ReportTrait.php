@@ -5,9 +5,42 @@ namespace App\Http\Traits;
 use App\Models\LedgerManager;
 use App\Models\Billing;
 use App\Models\LedgerFood;
+use App\Models\Sales;
 
 trait ReportTrait
 {
+    public function recalcDet($date){
+        if($date == '') return false;
+        $paidBillIds = Billing::whereDate('paid_at',$date)->pluck('id');
+        if($paidBillIds->isEmpty()){
+            LedgerFood::where('dtsale',$date)->delete();
+            return true;
+        }
+
+        $sales = Sales::whereIn('bill_id',$paidBillIds)
+            ->selectRaw('cate_id, sum(qty) as tqty, sum(amount) as tamt')
+            ->groupBy('cate_id')
+            ->get();
+
+        $activeCateIds = $sales->pluck('cate_id')->toArray();
+        LedgerFood::where('dtsale',$date)->whereNotIn('cate_id',$activeCateIds)->delete();
+
+        foreach($sales as $s){
+            $lf = LedgerFood::where('dtsale',$date)->where('cate_id',$s->cate_id)->first();
+            if($lf){
+                $lf->qty = $s->tqty;
+                $lf->amount = $s->tamt;
+                $lf->save();
+            } else {
+                LedgerFood::create([
+                    'cate_id'=>$s->cate_id,'sts'=>1,'dtsale'=>$date,
+                    'qty'=>$s->tqty,'amount'=>$s->tamt
+                ]);
+            }
+        }
+        return true;
+    }
+
     public function reportMan($today){
         if($today == '') return false;
         $man = LedgerManager::where('dmy',$today)->first();

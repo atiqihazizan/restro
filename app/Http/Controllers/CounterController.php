@@ -50,7 +50,6 @@ class CounterController extends Controller
 
 		if ($data['amt'] == 0) return response()->json(['error' => 'bad', 'message' => 'Please enter amount to pay']);
 		$item = $bill->item;
-		$this->reportDet($item);
 
 		$bill->rest = $data['tax'];
 		$bill->tax = round($data['taxnum']);
@@ -61,6 +60,8 @@ class CounterController extends Controller
 		$bill->paid = $data['amt'];
 		$bill->change = $data['bal'];
 		$bill->save();
+
+		$this->reportDet($item);
 		Desk::where('id', $bill->desk_id)->update(['order_id' => 0, 'sts' => 0, 'odrcnt' => 0]);
 		Restro::first()->update(['paysts' => 1, 'ordersts' => 1]);
 		$man = $this->reportMan($today);

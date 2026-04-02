@@ -20,6 +20,7 @@ class SalesController extends Controller
     }
     public function daily(Request $request){
         $today = $request->find??date('Y-m-d');
+        $this->recalcDet($today);
         $man = $this->reportMan($today);
         $data = LedgerFood::with('cate')
             ->whereDate('dtsale',$today)
