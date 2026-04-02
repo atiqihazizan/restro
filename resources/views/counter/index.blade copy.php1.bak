@@ -38,14 +38,8 @@
 					@continue($n->sts!=1)
 					<a class="nav-link nav-link-page nav-counter" href="#{{ $n->id }}"><i class="{{ $n->fa??''}} me-2"></i> {{ $n->name }}</a>
 					@endforeach
-					<!-- <button type="button" id="itemcart" class="btn btn-danger btn-rounded btn-lg fw-500 text-capitalize d-none"
-						data-toggle="sidenav" data-target="#confirm_order"
-						class="btn btn-primary" aria-controls="#confirm_order"
-						aria-haspopup="true">
-						Items in Cart (<span class="count-order">0</span>)
-					</button> -->
 					<button type="button" id="itemcart" class="btn btn-danger btn-rounded btn-lg fw-500 text-capitalize d-none"
-						data-target="#confirm_order"
+						data-toggle="sidenav" data-target="#confirm_order"
 						class="btn btn-primary" aria-controls="#confirm_order"
 						aria-haspopup="true">
 						Items in Cart (<span class="count-order">0</span>)

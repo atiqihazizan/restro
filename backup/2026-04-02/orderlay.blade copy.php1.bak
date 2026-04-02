@@ -142,7 +142,7 @@
 				sum += data[7];
 				tcount += data[6]
 				el.querySelector('tr.rowitem').setAttribute('fid', idf2)
-				el.querySelector('[item-name]').innerHTML = data[4]
+				el.querySelector('[item-name]').innerText = data[4]
 				el.querySelector('[item-qty]').innerText = data[6]
 				el.querySelector('[item-amt]').innerText = currency(data[7])
 				return el.innerHTML

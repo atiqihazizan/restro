@@ -146,11 +146,13 @@ body { position: relative}
 	display: flex;
 	flex-direction: column;
 	box-sizing: border-box;
+	overflow: auto;
+	/* height: calc(100vh - 70px); */
 }
 
 /* Grid menu mengisi ruang antara kategori dan panel pesanan */
 #menu-container .ordering-menu-row #listmenu .foods.menu-list-grid[data-menu-list] {
-	height: 100% !important;
+	/* height: 100% !important; */
 	min-height: 0;
 	flex: 1 1 auto;
 }
@@ -185,6 +187,7 @@ body { position: relative}
 	-webkit-overflow-scrolling: touch;
 	padding: 0 0.5rem;
 	box-sizing: border-box;
+	height: calc(100vh - 70px - 52px - 130px) !important;
 }
 
 .order-cart-dock__footer {
