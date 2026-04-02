@@ -264,7 +264,8 @@
                             <td class="text-center">${s.desk.code}</td>
                             <td class="text-center">
                                 <button class="btn bg-black btn-sm px-2 rounded-5 text-success me-1" data-view-receipt idx="${s.id}"><i class="fa fa-eye"></i></button>
-                                <button class="btn bg-success btn-sm px-2 rounded-5 text-white" data-reprint-receipt idx="${s.id}"><i class="fa fa-print"></i></button>
+                                <button class="btn bg-success btn-sm px-2 rounded-5 text-white me-1" data-reprint-receipt idx="${s.id}"><i class="fa fa-print"></i></button>
+                                <button class="btn bg-danger btn-sm px-2 rounded-5 text-white" data-delete-receipt idx="${s.id}"><i class="fa fa-trash"></i></button>
                             </td>
                         </tr>`
 			}).join('')
@@ -290,6 +291,24 @@
 							})
 						}
 					}).catch(err => console.error('Reprint error:', err))
+				})
+			})
+			
+			tbody.querySelectorAll('[data-delete-receipt]').forEach(p => {
+				p.addEventListener('click', function(e) {
+					e.preventDefault()
+					let id = this.getAttribute('idx')
+					let data = dataSale[id]
+					if(confirm('Are you sure you want to delete receipt #' + data.rcptno + '? This cannot be undone.')) {
+						axios.delete(APP_URL + 'counter/' + id + '/delete').then(res => {
+							if(res.data.success) {
+								initSales()
+							}
+						}).catch(err => {
+							console.error('Delete error:', err)
+							alert('Failed to delete receipt. Please try again.')
+						})
+					}
 				})
 			})
 		}

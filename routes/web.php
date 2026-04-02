@@ -40,6 +40,7 @@ Route::group(['prefix'=>'counter'],function(){
     Route::get('/daily',[\App\Http\Controllers\SalesController::class,'daily'])->name('counter.daily');
     Route::get('/monthly',[\App\Http\Controllers\SalesController::class,'monthly'])->name('counter.monthly');
     Route::get('/yearly',[\App\Http\Controllers\SalesController::class,'yearly'])->name('counter.yearly');
+    Route::delete('/{bill}/delete',[\App\Http\Controllers\SalesController::class,'deleteSale'])->name('counter.delete');
 
 });
 

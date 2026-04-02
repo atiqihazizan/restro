@@ -7,6 +7,7 @@ use App\Models\Billing;
 use App\Models\Categories;
 use App\Models\LedgerFood;
 use App\Models\Sales;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -92,5 +93,21 @@ class SalesController extends Controller
             'det'=>$rt->values()
         ];
         return response()->json($data);
+    }
+
+    public function deleteSale(Billing $bill)
+    {
+        if (!$bill->paid_at) {
+            return response()->json(['error' => 'bad', 'message' => 'Cannot delete unpaid bill'], 400);
+        }
+
+        $date = Carbon::parse($bill->paid_at)->format('Y-m-d');
+        
+        $bill->delete();
+        
+        $this->recalcDet($date);
+        $this->reportMan($date);
+        
+        return response()->json(['success' => 'ok', 'message' => 'Receipt deleted successfully']);
     }
 }
