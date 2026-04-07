@@ -3,8 +3,8 @@
 		<div class="text-start d-flex">
 			<h3 class="w-100 bg-black mb-0 p-3 text-start flex-fill" data-table-name>&nbsp;</h3>
 			<div class="d-flex">
-				<button class="btn fs-2" title="Print Receipt"><i class="fa fa-print text-primary" print-receipt></i></button>
-				<button class="btn fs-2 ms-2" title="Print to kichen"><i class="fa fa-print text-danger" print-tokichen></i></button>
+				<button class="btn fs-2" title="Print Receipt" print-receipt><i class="fa fa-print text-primary"></i></button>
+				<button class="btn fs-2 ms-2" title="Print to kichen" print-tokichen><i class="fa fa-print text-danger"></i></button>
 			</div>
 		</div>
 		<table class="table table-borderless table-flush table-to-pay header">
@@ -39,14 +39,13 @@
 			</tfoot>
 		</table>
 		<div class="button-pay d-flex">
-			{{-- <a class="btn btn-primary btn-lg text-capitalize nav-link-page" href="javascript:void(0)" id="take-order">Take Order</a>--}}
 			<button class="btn btn-primary btn-lg text-capitalize" id="take-order" disabled>Take Order</button>
 			<button class="btn btn-success btn-lg text-capitalize" id="btn_to_pay" disabled>Pay</button>
 		</div>
 	</div>
 	<div id="pos-desk" class="flex-fill">
-		<div class="post-table">
-			<div class="pos-content-food" load-table-data="true"></div>
+		<div class="pos-table">
+			<div class="table-list" data-table-list></div>
 		</div>
 	</div>
 </div>
@@ -135,35 +134,36 @@
 
 		async function initTable() {
 			let res = await axios.get(APP_URL + 'ordering/?getpos=true')
-			let data = res.data;
-			let table = data.table ?? [];
-			let tableEl = pagePos.querySelector('[load-table-data]')
-			let bgcolor = [
-				'border border-success', // no-order
-				'bg-success border border-success', // pre-order
-				'bg-danger border border-danger', // confirm/cooking
-				'bg-danger border border-danger', // ready delivery
-				'bg-danger border border-danger', // ready to pay
-			];
-			// pagePos.querySelector('[data-table-name]').innerHTML = '&nbsp;'
-			tableEl.innerHTML = table.map((t, n) => {
-				return `<a idx="${ t.id }" oid="${t.order_id}" tname="${t.name}" class="w-100 rounded-9 view-order">
-                        <div class="card ${ bgcolor[t.sts] } text-capitalize rounded-9">
-                            <div class="card-body py-3 text-center">
-                                <h4 class="card-title d-flex justify-content-between fw-600 fs-4">${ t.name }</h4>
-                            </div>
-                        </div>
-                    </a>`
+			let tables = res.data.table ?? [];
+			let tableContainer = pagePos.querySelector('[data-table-list]')
+			// sts 0–4: gaya warna latar ditentukan oleh .pos-table-card--s{n} dalam grid-cards.css
+			tableContainer.innerHTML = tables.map((t, n) => {
+				const label = String(t.name)
+				const split = label.match(/^(.*?)\s+(\d+)$/)
+				const titleHtml = split
+					? `<span class="pos-table-line pos-table-line--label">${split[1]}</span><span class="pos-table-line pos-table-line--num">${split[2]}</span>`
+					: `<span class="pos-table-line pos-table-line--single">${label}</span>`
+				const rawSts = Number(t.sts)
+				const s = Number.isFinite(rawSts) ? Math.min(4, Math.max(0, Math.floor(rawSts))) : 0
+				return `<a data-id="${t.id}" data-order-id="${t.order_id}" data-name="${t.name}" data-sts="${s}" class="view-order pos-table-tile h-100 w-100 d-block text-decoration-none text-capitalize">
+						<div class="card pos-table-card pos-table-card--s${s} border-0 shadow-none h-100">
+							<div class="card-body pos-table-card-body d-flex flex-column justify-content-center align-items-center py-3 px-2">
+								<div class="pos-table-card-title text-white text-center">${titleHtml}</div>
+							</div>
+						</div>
+					</a>`
 			}).join('')
-			tableEl.querySelectorAll('.view-order').forEach(function(b) {
+			tableContainer.querySelectorAll('.view-order').forEach(function(b) {
 				b.addEventListener('dblclick', async function(e) {
 					e.preventDefault()
 					pagePos.querySelector('#take-order').click();
 				})
 				b.addEventListener('click', async function() {
-					let oid = this.getAttribute('oid') * 1
-					let idx = this.getAttribute('idx') * 1
-					let tname = this.getAttribute('tname')
+					tableContainer.querySelectorAll('.view-order.active').forEach(a => a.classList.remove('active'))
+					this.classList.add('active')
+					let oid = this.dataset.orderId * 1
+					let idx = this.dataset.id * 1
+					let tname = this.dataset.name
 					pagePos.querySelector('[data-table-name]').innerHTML = tname
 					pagePos.querySelector('#take-order').removeAttribute('disabled')
 					document.querySelector('meta[name="table"]').setAttribute('content', idx)
@@ -258,7 +258,6 @@
 						inputGrand.textContent = currency(bill.grand);
 
 						bill.bal = bill.grand - (bill.amt || 0);
-						if (bill.amt == 0) bill.bal = 0;
 						inputBal.textContent = currency(bill.bal);
 					}
 				} catch (err) {
@@ -297,8 +296,7 @@
 							bill.amt = 0
 							inputAmt.textContent = currency(0)
 							bill.bal = bill.grand - bill.amt
-							if (bill.amt == 0) bill.bal = 0
-							inputBal.textContent = currency(bill.bal.toString())
+							inputBal.textContent = currency(bill.bal)
 						}
 						return
 					}
@@ -347,8 +345,7 @@
 						inputPay = modalCalc.querySelector('[data-pay]')
 
 						bill.bal = bill.grand - bill.amt
-						if (bill.amt == 0) bill.bal = 0
-						inputBal.textContent = currency(bill.bal.toString())
+						inputBal.textContent = currency(bill.bal)
 					}
 				})
 			})
@@ -385,20 +382,21 @@
 
 			function resetPanelPay() {
 				keyPay = ''
-				inputTotal.textContent = bill.total.toFixed(2);
-				inputGrand.textContent = bill.total.toFixed(2);
-				inputPay.textContent = '0.00';
-				inputTax.textContent = '0.00';
-				inputDisc.textContent = '0.00';
-				inputBal.textContent = '0.00';
+				const sub = Number(bill.total) || 0
+				inputTotal.textContent = currency(sub);
+				inputGrand.textContent = currency(sub);
+				inputPay.textContent = currency(0);
+				inputTax.textContent = currency(0);
+				inputDisc.textContent = currency(0);
+				inputBal.textContent = currency(sub);
 				modalEl.querySelector('[data-tax-percent]').textContent = '(0%)';
 				modalEl.querySelector('[data-disc-percent]').textContent = '(0%)';
 				bill.amt = 0
-				bill.bal = 0
 				bill.tax = 0
 				bill.disc = 0
-				bill.net = 0;
-				bill.grand = 0;
+				bill.net = sub
+				bill.grand = sub
+				bill.bal = sub
 				bill.taxnum = 0;
 				bill.discnum = 0;
 

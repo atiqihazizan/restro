@@ -13,14 +13,12 @@
  *
  * --card-grid-canvas: latar grid meja (bukan hitam tulen #000) supaya box-shadow gelap pada kad kelihatan.
  */
- :root {
-	/*--grid-card-min: 150px;*/
-	--grid-card-min: calc((100vw - 250px - 2rem) / 7);
-	/* --grid-card-min: 240px; */
-	/* --grid-card-row: 160px; */
-	--grid-card-row: calc((100vh - 70px - 5rem) / 4);
-	--grid-card-gap: 1rem;
-	--grid-card-pad: 1rem;
+:root {
+	/* --grid-card-min: 230px; */
+	--grid-card-min: calc((100vw - 450px - 20rem) / 7);
+	--grid-card-row: 240px;
+	--grid-card-gap: 2rem;
+	--grid-card-pad: 2rem;
 	/* Latar grid sedikit cerah supaya kad “soft 3D” kontras tanpa keras */
 	/* --card-grid-canvas: #25252c; */
 	/* --card-grid-canvas: #606060; */
@@ -40,8 +38,8 @@
 	--pos-table-focus-ring: #ffeb3b;
 	--pos-table-focus-glow: rgba(255, 235, 59, 0.95);
 	/* Tipografi kad menu (ordering) — naikkan nilai rem / vw jika mahu lebih besar */
-	--menu-card-title-size: clamp(1.55rem, 3.2vw, 1.0rem);
-    --menu-card-price-size: clamp(1.3rem, 2.6vw, 1.0rem);
+	--menu-card-title-size: clamp(1.55rem, 3.2vw, 2.15rem);
+	--menu-card-price-size: clamp(1.3rem, 2.6vw, 1.7rem);
 }
 
 .pos [data-table-list] {
@@ -138,12 +136,12 @@
 }
 
 .pos [data-table-list] .pos-table-line--label {
-	font-size: clamp(1.2rem, 3.2vw, 1.5rem);
+	font-size: clamp(1.2rem, 3.2vw, 2.7rem);
 	font-weight: 600;
 }
 
 .pos [data-table-list] .pos-table-line--num {
-	font-size: clamp(1.85rem, 5.2vw, 3.55rem);
+	font-size: clamp(1.85rem, 5.2vw, 4.95rem);
 	font-weight: 700;
 	margin-top: 0.35rem;
 }

@@ -1,12 +1,53 @@
 {
+    "name": "restro",
+    "version": "1.0.0",
+    "description": "Restro desktop shell (Electron)",
+    "author": "Restro",
+    "main": "electron/main.cjs",
     "private": true,
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "electron": "electron .",
+        "electron:prepare": "node scripts/prepare-electron-laravel.mjs",
+        "electron:build:win": "node scripts/prepare-electron-laravel.mjs && electron-builder --win --x64"
     },
     "devDependencies": {
         "axios": "^1.1.2",
+        "electron": "^33.2.1",
+        "electron-builder": "^25.1.8",
         "laravel-vite-plugin": "^0.7.2",
         "vite": "^4.0.0"
+    },
+    "build": {
+        "appId": "com.restro.desktop",
+        "productName": "Restro",
+        "files": [
+            "electron/**/*",
+            "package.json"
+        ],
+        "extraResources": [
+            {
+                "from": "runtime/php",
+                "to": "php"
+            },
+            {
+                "from": "bundled/laravel",
+                "to": "laravel"
+            }
+        ],
+        "directories": {
+            "output": "dist-electron"
+        },
+        "win": {
+            "target": [
+                {
+                    "target": "portable",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ]
+        }
     }
 }

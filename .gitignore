@@ -18,3 +18,11 @@ yarn-error.log
 /.idea
 /.vscode
 *.bak
+
+# Binari PHP Windows (letak secara tempatan sebelum build; jangan commit)
+/runtime/php/**
+!/runtime/php/.gitkeep
+!/runtime/php/BACA_INI.txt
+
+# Hasil salinan untuk pakej Electron (jana oleh npm run electron:build:win)
+/bundled/

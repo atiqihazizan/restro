@@ -44,11 +44,16 @@
 						aria-haspopup="true">
 						Items in Cart (<span class="count-order">0</span>)
 					</button> -->
-					<button type="button" id="itemcart" class="btn btn-danger btn-rounded btn-lg fw-500 text-capitalize d-none"
+					<button type="button" id="itemcart" class="btn btn-info btn-rounded btn-lg fw-500 text-capitalize d-none"
 						data-target="#confirm_order"
 						class="btn btn-primary" aria-controls="#confirm_order"
 						aria-haspopup="true">
 						Items in Cart (<span class="count-order">0</span>)
+					</button>
+					<button type="button" id="btn-electron-exit" class="btn btn-outline-light btn-danger btn-rounded btn-lg ms-2 d-none"
+						title="Exit" aria-label="Exit application"
+						onclick="confirmElectronExit();">
+						<i class="fas fa-power-off me-md-1"></i><span class="d-none d-md-inline"></span>
 					</button>
 				</div>
 
@@ -94,6 +99,20 @@
 		if (typeof pahoMQTT === 'function') {
 			pahoMQTT();
 		}
+
+		function confirmElectronExit() {
+			if (!window.electronApp || typeof window.electronApp.quit !== 'function') return;
+			if (confirm('Are you sure you want to exit?')) {
+				window.electronApp.quit();
+			}
+		}
+
+		(function () {
+			var exitBtn = document.getElementById('btn-electron-exit');
+			if (exitBtn && window.electronApp && typeof window.electronApp.quit === 'function') {
+				exitBtn.classList.remove('d-none');
+			}
+		})();
 	</script>
 	@stack('javascript')
 
