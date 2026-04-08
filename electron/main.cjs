@@ -168,7 +168,7 @@ async function resolveAppUrl() {
 
 const MENU = {
   application: 'Menu Bar',
-  // webDev: 'WebDev',
+  // webDev: 'Toggle DevTools',
   exit: 'Exit',
 };
 
@@ -230,24 +230,26 @@ function attachContextMenu(win) {
 }
 
 function createWindow() {
-  const win = new BrowserWindow({
+  /** titleBarOverlay hanya disokong dengan baik pada macOS / Win11+ dengan tetingkap tanpa frame; elakkan pada Windows lama. */
+  const winOptions = {
     width: 1920,
     height: 1080,
     frame: true,
-    // kiosk: true,
     fullscreen: true,
     fullscreenable: true,
     autoHideMenuBar: true,
-    // titleBarStyle: 'hidden',
-    titleBarOverlay: {
-      color: '#2c3e50',
-      symbolColor: '#ffffff',
-    },
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.cjs'),
     },
-  });
+  };
+  if (process.platform === 'darwin') {
+    winOptions.titleBarOverlay = {
+      color: '#2c3e50',
+      symbolColor: '#ffffff',
+    };
+  }
+  const win = new BrowserWindow(winOptions);
 
   attachContextMenu(win);
 
@@ -279,6 +281,9 @@ ipcMain.on('app-quit', () => {
 });
 
 app.whenReady().then(() => {
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('com.restro.desktop');
+  }
   setMainMenu();
   createWindow();
 });

@@ -26,3 +26,6 @@ yarn-error.log
 
 # Hasil salinan untuk pakej Electron (jana oleh npm run electron:build:win)
 /bundled/
+
+# Output electron-builder (binari Windows / folder unpacked — jangan commit)
+/dist-electron/

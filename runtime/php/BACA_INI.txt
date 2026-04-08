@@ -1,0 +1,21 @@
+Windows (pembangunan & build Electron)
+=====================================
+
+Projek ini mempin Electron 22.x (terakhir menyokong Windows 7 / 8 / 8.1). Sokongan rasmi Electron 22
+telah tamat — elakkan untuk data sensitif tanpa penilaian risiko.
+
+
+1. Muat turun PHP Windows "Thread Safe" ZIP (x64 atau x86) dari https://windows.php.net/download/
+   - Untuk binaan Electron x64: guna ZIP **x64**.
+   - Untuk binaan Electron ia32 (x86): guna ZIP **x86** — jangan campur binari x64 dengan .exe ia32.
+2. Ekstrak kandungan ZIP ke folder ini supaya wujud:
+      runtime/php/php.exe
+3. Pastikan DLL yang diperlukan (contoh libssl, libcrypto) ada — ikut nota rasmi PHP Windows.
+
+Tanpa php.exe di sini:
+- `npm run electron` pada Windows masih boleh jika `php` ada dalam PATH sistem.
+- Untuk aplikasi dibungkus (.exe), letakkan php.exe dalam folder ini sebelum jalankan:
+      npm run electron:build:win7   (x64 + ia32, sasaran Windows 7+ dengan Electron 22)
+      npm run electron:build:win64  atau  electron:build:win32
+
+Folder runtime/php (kecuali fail ini & .gitkeep) diabaikan oleh Git — jangan commit binari PHP.
