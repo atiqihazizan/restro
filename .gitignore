@@ -19,6 +19,9 @@ yarn-error.log
 /.vscode
 *.bak
 
+# macOS
+.DS_Store
+
 # Binari PHP Windows (letak secara tempatan sebelum build; jangan commit)
 /runtime/php/**
 !/runtime/php/.gitkeep
