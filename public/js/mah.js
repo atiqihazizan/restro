@@ -223,21 +223,19 @@ let MD5 = function(e) {
     for (e = 0; e < f.length; e += 16) q = a, r = b, s = c, t = d, a = k(a, b, c, d, f[e + 0], 7, 3614090360), d = k(d, a, b, c, f[e + 1], 12, 3905402710), c = k(c, d, a, b, f[e + 2], 17, 606105819), b = k(b, c, d, a, f[e + 3], 22, 3250441966), a = k(a, b, c, d, f[e + 4], 7, 4118548399), d = k(d, a, b, c, f[e + 5], 12, 1200080426), c = k(c, d, a, b, f[e + 6], 17, 2821735955), b = k(b, c, d, a, f[e + 7], 22, 4249261313), a = k(a, b, c, d, f[e + 8], 7, 1770035416), d = k(d, a, b, c, f[e + 9], 12, 2336552879), c = k(c, d, a, b, f[e + 10], 17, 4294925233), b = k(b, c, d, a, f[e + 11], 22, 2304563134), a = k(a, b, c, d, f[e + 12], 7, 1804603682), d = k(d, a, b, c, f[e + 13], 12, 4254626195), c = k(c, d, a, b, f[e + 14], 17, 2792965006), b = k(b, c, d, a, f[e + 15], 22, 1236535329), a = l(a, b, c, d, f[e + 1], 5, 4129170786), d = l(d, a, b, c, f[e + 6], 9, 3225465664), c = l(c, d, a, b, f[e + 11], 14, 643717713), b = l(b, c, d, a, f[e + 0], 20, 3921069994), a = l(a, b, c, d, f[e + 5], 5, 3593408605), d = l(d, a, b, c, f[e + 10], 9, 38016083), c = l(c, d, a, b, f[e + 15], 14, 3634488961), b = l(b, c, d, a, f[e + 4], 20, 3889429448), a = l(a, b, c, d, f[e + 9], 5, 568446438), d = l(d, a, b, c, f[e + 14], 9, 3275163606), c = l(c, d, a, b, f[e + 3], 14, 4107603335), b = l(b, c, d, a, f[e + 8], 20, 1163531501), a = l(a, b, c, d, f[e + 13], 5, 2850285829), d = l(d, a, b, c, f[e + 2], 9, 4243563512), c = l(c, d, a, b, f[e + 7], 14, 1735328473), b = l(b, c, d, a, f[e + 12], 20, 2368359562), a = m(a, b, c, d, f[e + 5], 4, 4294588738), d = m(d, a, b, c, f[e + 8], 11, 2272392833), c = m(c, d, a, b, f[e + 11], 16, 1839030562), b = m(b, c, d, a, f[e + 14], 23, 4259657740), a = m(a, b, c, d, f[e + 1], 4, 2763975236), d = m(d, a, b, c, f[e + 4], 11, 1272893353), c = m(c, d, a, b, f[e + 7], 16, 4139469664), b = m(b, c, d, a, f[e + 10], 23, 3200236656), a = m(a, b, c, d, f[e + 13], 4, 681279174), d = m(d, a, b, c, f[e + 0], 11, 3936430074), c = m(c, d, a, b, f[e + 3], 16, 3572445317), b = m(b, c, d, a, f[e + 6], 23, 76029189), a = m(a, b, c, d, f[e + 9], 4, 3654602809), d = m(d, a, b, c, f[e + 12], 11, 3873151461), c = m(c, d, a, b, f[e + 15], 16, 530742520), b = m(b, c, d, a, f[e + 2], 23, 3299628645), a = n(a, b, c, d, f[e + 0], 6, 4096336452), d = n(d, a, b, c, f[e + 7], 10, 1126891415), c = n(c, d, a, b, f[e + 14], 15, 2878612391), b = n(b, c, d, a, f[e + 5], 21, 4237533241), a = n(a, b, c, d, f[e + 12], 6, 1700485571), d = n(d, a, b, c, f[e + 3], 10, 2399980690), c = n(c, d, a, b, f[e + 10], 15, 4293915773), b = n(b, c, d, a, f[e + 1], 21, 2240044497), a = n(a, b, c, d, f[e + 8], 6, 1873313359), d = n(d, a, b, c, f[e + 15], 10, 4264355552), c = n(c, d, a, b, f[e + 6], 15, 2734768916), b = n(b, c, d, a, f[e + 13], 21, 1309151649), a = n(a, b, c, d, f[e + 4], 6, 4149444226), d = n(d, a, b, c, f[e + 11], 10, 3174756917), c = n(c, d, a, b, f[e + 2], 15, 718787259), b = n(b, c, d, a, f[e + 9], 21, 3951481745), a = h(a, q), b = h(b, r), c = h(c, s), d = h(d, t);
     return (p(a) + p(b) + p(c) + p(d)).toLowerCase()
 };
+/** Klien Paho bersambung (diisi oleh MQTTconnect selepas hubungan dibuka) */
+var mqtt;
+
 function pahoMQTT(){
-    var mqtt;
     var reconnectTimeout = 2000;
     var trycount = 0;
-    var host = '167.99.79.49'; port = 1884;
+    // var host = '167.99.79.49'; port = 1884;
+    var host = 'mahsites.net'; port = 8885;
     var path = '/mqtt';
     var topic = 'JTMIOT';
-    var clientID = "web_" + parseInt(Math.random() * 100, 10)
+    var clientID = "web_" + parseInt(Math.random() * 100, 10);
 
-//var msg  = '{"type":1,"serid":"203F530X002524","date":"20201014","time":"030343","lat":3.04925,"lon":101.69619,"alt":53,"gps":2,"sat":12,"hdop":0.69,"spd":27,"dir":233,"devid":8,"sts":0,"inp":0,"volt":0,"seq":221,"rid":0,"tid":0,"ts":1602673423}';
     var msg = '';
-
-    // $('#host').val(host);
-    // $('#port').val(port);
-    // $('#message').val(msg);
 
     function MQTTconnect() {
 
@@ -273,7 +271,6 @@ function pahoMQTT(){
     function onConnect() {
         console.log('Connected.');
         mqtt.subscribe(topic, {qos: 0});
-        // $('#status').val('Connected.');
     }
 
     function onConnectionLost(response) {
@@ -284,25 +281,10 @@ function pahoMQTT(){
     }
 
     function onMessageArrived(message) {
-        var mytopic = message.destinationName;
         var payload = message.payloadString;
-        console.log(message)
-        // $('#status').val(payload);
-        // $('#content').append(payload+'<br>');
-        //var data = JSON.parse(payload);
-        //console.log(adata);
+        console.log(message);
     }
 
-    // $("#send").on("click", function(){
-    //     if (!mqtt) {
-    //         return;
-    //     }
-    //     var topic = $('#topic').val();
-    //     var msg = $('#message').val();
-    //     var message = new Paho.MQTT.Message(msg);
-    //     message.destinationName = topic;
-    //     mqtt.send(message);
-    // });
     return {
         connect: MQTTconnect,
         send: function(msg){
@@ -314,6 +296,56 @@ function pahoMQTT(){
         get: function(){
 
         }
+    }
+}
+
+function publishKitchenOrder(billId, tableName, items) {
+    try {
+        if (typeof Paho === 'undefined') {
+            console.warn('Paho MQTT library not loaded');
+            return;
+        }
+
+        const message = new Paho.MQTT.Message(JSON.stringify({
+            action: 'new_order',
+            bill_id: billId,
+            table_name: tableName,
+            items: items,
+            timestamp: new Date().toISOString()
+        }));
+        message.destinationName = 'kitchen/orders';
+
+        if (typeof mqtt !== 'undefined' && mqtt && mqtt.isConnected()) {
+            mqtt.send(message);
+            console.log('Kitchen order published:', billId);
+        } else {
+            console.warn('MQTT not connected, order not published');
+        }
+    } catch (e) {
+        console.error('Publish kitchen order error:', e);
+    }
+}
+
+function publishOrderPaid(billId) {
+    try {
+        if (typeof Paho === 'undefined') {
+            console.warn('Paho MQTT library not loaded');
+            return;
+        }
+
+        const message = new Paho.MQTT.Message(JSON.stringify({
+            action: 'order_paid',
+            bill_id: billId,
+            timestamp: new Date().toISOString()
+        }));
+        message.destinationName = 'kitchen/orders';
+
+        if (typeof mqtt !== 'undefined' && mqtt && mqtt.isConnected()) {
+            mqtt.send(message);
+            console.log('Order paid published:', billId);
+        }
+    } catch (e) {
+        console.error('Publish order paid error:', e);
     }
 }
 
@@ -333,54 +365,4 @@ function busyOff(){
     backdrop.remove()
     loadingFull.remove()
     // document.body.style.overflow = ''
-}
-
-function publishKitchenOrder(billId, tableName, items) {
-    try {
-        if (typeof Paho === 'undefined') {
-            console.warn('Paho MQTT library not loaded');
-            return;
-        }
-        
-        const message = new Paho.MQTT.Message(JSON.stringify({
-            action: 'new_order',
-            bill_id: billId,
-            table_name: tableName,
-            items: items,
-            timestamp: new Date().toISOString()
-        }));
-        message.destinationName = 'kitchen/orders';
-        
-        if (typeof mqtt !== 'undefined' && mqtt && mqtt.isConnected()) {
-            mqtt.send(message);
-            console.log('Kitchen order published:', billId);
-        } else {
-            console.warn('MQTT not connected, order not published');
-        }
-    } catch (e) {
-        console.error('Publish kitchen order error:', e);
-    }
-}
-
-function publishOrderPaid(billId) {
-    try {
-        if (typeof Paho === 'undefined') {
-            console.warn('Paho MQTT library not loaded');
-            return;
-        }
-        
-        const message = new Paho.MQTT.Message(JSON.stringify({
-            action: 'order_paid',
-            bill_id: billId,
-            timestamp: new Date().toISOString()
-        }));
-        message.destinationName = 'kitchen/orders';
-        
-        if (typeof mqtt !== 'undefined' && mqtt && mqtt.isConnected()) {
-            mqtt.send(message);
-            console.log('Order paid published:', billId);
-        }
-    } catch (e) {
-        console.error('Publish order paid error:', e);
-    }
 }

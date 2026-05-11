@@ -44,7 +44,8 @@
     const APP_URL = `{{ URL::asset('') }}`
     
     if (typeof pahoMQTT === 'function') {
-        pahoMQTT();
+        const _mqHub = pahoMQTT();
+        if (_mqHub && typeof _mqHub.connect === 'function') _mqHub.connect();
     }
 </script>
 @stack('javascript')

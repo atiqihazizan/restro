@@ -126,6 +126,14 @@
 		const n = Number(String(v).replace(/,/g, ''))
 		return Number.isFinite(n) ? n : 0
 	}
+	/** Label resit: "Tax (6%)" / "Discount (5%)" — pct dari kolum `tax` / `discount` pada Billing */
+	function receiptSummaryPercentLabel(label, pctRaw) {
+		var n = ledgerNum(pctRaw)
+		if (!Number.isFinite(n)) n = 0
+		var s = (Math.round(n * 10000) / 10000).toString()
+		if (s.indexOf('.') !== -1) s = s.replace(/\.?0+$/, '')
+		return label + ' (' + s + '%)'
+	}
 	function ledgerGrand(man, sumDet, taxVal) {
 		if (man && man.total != null && man.total !== '') return ledgerNum(man.total)
 		if (man && man.grandtotal != null && man.grandtotal !== '') return ledgerNum(man.grandtotal)
@@ -229,6 +237,11 @@
 			if (data.rest) el.querySelector('.tax').innerHTML = currency(data.rest)
 			else el.querySelector('.tax').innerHTML = currency(0)
 			el.querySelector('.total').innerHTML = currency(netTotal)
+
+			var taxLabelSpan = el.querySelector('.receipt-tax-label-text')
+			if (taxLabelSpan) taxLabelSpan.textContent = receiptSummaryPercentLabel('Tax', data.tax)
+			var discLabelSpan = el.querySelector('.receipt-discount-label-text')
+			if (discLabelSpan) discLabelSpan.textContent = receiptSummaryPercentLabel('Discount', data.discount)
 			
 			if (data.discamt && data.discamt > 0) {
 				el.querySelector('.discount').innerHTML = '-' + currency(data.discamt)
@@ -298,8 +311,11 @@
 				p.addEventListener('click', function(e) {
 					e.preventDefault()
 					let id = this.getAttribute('idx')
-					let data = dataSale[id]
-					if(confirm('Are you sure you want to delete receipt #' + data.rcptno + '? This cannot be undone.')) {
+					if (typeof window.openRestroCredentialModal !== 'function') {
+						alert('Credential modal tidak tersedia.')
+						return
+					}
+					window.openRestroCredentialModal(function () {
 						axios.delete(APP_URL + 'counter/' + id + '/delete').then(res => {
 							if(res.data.success) {
 								initSales()
@@ -308,7 +324,7 @@
 							console.error('Delete error:', err)
 							alert('Failed to delete receipt. Please try again.')
 						})
-					}
+					})
 				})
 			})
 		}

@@ -19,6 +19,9 @@ yarn-error.log
 /.vscode
 *.bak
 
+# Sandaran tempatan (jangan commit)
+/backup/
+
 # macOS
 .DS_Store
 

@@ -314,3 +314,22 @@ body { position: relative}
 }
 #sale_receipt .receipt-header { height: 81.59px;}
 #sale_receipt .receipt-footer { height: 86.39px;}
+
+/* Overlay modal credential: kaburkan kandungan di belakang (keselamatan privasi) */
+body.credential-modal-blur .modal-backdrop {
+	background-color: rgba(15, 16, 20, 0.55);
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+}
+
+/*
+ * Modal Pay (#calculate) berada atas backdrop pertama; backdrop-filter atas backdrop
+ * kedua tidak sentiasa mengaburkan keypad. Terap filter terus pada dialog POS.
+ */
+body.credential-modal-blur #calculate.modal.show .modal-dialog {
+	-webkit-filter: blur(12px);
+	filter: blur(12px);
+	pointer-events: none;
+	-webkit-user-select: none;
+	user-select: none;
+}

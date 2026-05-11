@@ -37,6 +37,27 @@
                             </div>
                             <button type="submit" class="btn btn-primary btn-block mt-5">Save</button>
                         </form>
+
+                        <hr class="my-5 opacity-25">
+                        <h4 class="fw-500 mt-0 mb-3">Credential password</h4>
+                        <p class="small text-white-50 mb-3">Selepas migration, lalai ialah <code class="text-warning">Admin@123</code>. Password baru mesti: sekurang-kurangnya 8 aksara, ada huruf besar, huruf kecil, nombor dan simbol.</p>
+                        <div id="cred-save-alert" class="alert d-none" role="alert"></div>
+                        <form id="cred-password-form">
+                            @csrf
+                            <div class="mb-4">
+                                <label for="cred_old_password" class="form-label">Password lama</label>
+                                <input type="password" class="form-control" id="cred_old_password" name="old_password" required autocomplete="current-password">
+                            </div>
+                            <div class="mb-4">
+                                <label for="cred_new_password" class="form-label">Password baru</label>
+                                <input type="password" class="form-control" id="cred_new_password" name="new_password" required autocomplete="new-password" minlength="8">
+                            </div>
+                            <div class="mb-4">
+                                <label for="cred_new_password_confirmation" class="form-label">Ulang password baru</label>
+                                <input type="password" class="form-control" id="cred_new_password_confirmation" name="new_password_confirmation" required autocomplete="new-password" minlength="8">
+                            </div>
+                            <button type="submit" class="btn btn-warning rounded-5" id="cred-password-save">Simpan credential</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -401,6 +422,64 @@
             }
         }
     }()
-    mdb_foods.init();
+
+        function showCredAlert(type, text) {
+            var el = document.getElementById('cred-save-alert')
+            if (!el) return
+            el.classList.remove('d-none', 'alert-success', 'alert-danger')
+            el.classList.add(type === 'success' ? 'alert-success' : 'alert-danger')
+            el.textContent = text
+        }
+
+        function isStrongRestroCredPassword(pw) {
+            if (typeof pw !== 'string' || pw.length < 8) return false
+            if (!/[a-z]/.test(pw)) return false
+            if (!/[A-Z]/.test(pw)) return false
+            if (!/\d/.test(pw)) return false
+            if (!/[^A-Za-z0-9]/.test(pw)) return false
+            return true
+        }
+
+        var credFormEl = document.getElementById('cred-password-form')
+        if (credFormEl) {
+            credFormEl.addEventListener('submit', function(e) {
+                e.preventDefault()
+                var oldP = credFormEl.old_password.value
+                var newP = credFormEl.new_password.value
+                var conf = credFormEl.new_password_confirmation.value
+                if (newP !== conf) {
+                    showCredAlert('error', 'Password baru dan ulangan tidak sama.')
+                    return
+                }
+                if (!isStrongRestroCredPassword(newP)) {
+                    showCredAlert('error', 'Password baru mesti min. 8 aksara, ada huruf besar, huruf kecil, nombor dan simbol.')
+                    return
+                }
+                var saveUrl = window.RESTRO_CREDENTIAL_SAVE_URL || (APP_URL + 'restro/credential/save')
+                axios.post(saveUrl, {
+                    old_password: oldP,
+                    new_password: newP,
+                    new_password_confirmation: conf,
+                    _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }).then(function(res) {
+                    showCredAlert('success', (res.data && res.data.message) ? res.data.message : 'Berjaya dikemas kini.')
+                    credFormEl.old_password.value = ''
+                    credFormEl.new_password.value = ''
+                    credFormEl.new_password_confirmation.value = ''
+                }).catch(function(err) {
+                    var msg = 'Gagal menyimpan.'
+                    if (err.response && err.response.data) {
+                        var d = err.response.data
+                        if (d.errors) {
+                            var first = Object.keys(d.errors)[0]
+                            if (first && d.errors[first][0]) msg = d.errors[first][0]
+                        } else if (d.message) msg = d.message
+                    }
+                    showCredAlert('error', msg)
+                })
+            })
+        }
+
+        mdb_foods.init();
 </script>
 @endpush

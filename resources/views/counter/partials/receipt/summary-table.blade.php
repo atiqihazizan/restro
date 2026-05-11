@@ -43,7 +43,7 @@
         <td class="subtotal {{ $valueClass }}">0.00</td>
     </tr>
     <tr>
-        <td class="{{ $labelClass }}">Tax</td>
+        <td class="{{ $labelClass }}"><span class="receipt-tax-label-text">Tax</span></td>
         <td class="tax {{ $valueClass }}">0.00</td>
     </tr>
     <tr>
@@ -51,7 +51,7 @@
         <td class="total {{ $valueClass }}">0.00</td>
     </tr>
     <tr class="{{ $discountRowClass }}">
-        <td class="{{ $labelClass }}">Discount</td>
+        <td class="{{ $labelClass }}"><span class="receipt-discount-label-text">Discount</span></td>
         <td class="discount {{ $valueClass }}">0.00</td>
     </tr>
     <tr>

@@ -15,10 +15,10 @@
  */
  :root {
 	/*--grid-card-min: 150px;*/
-	--grid-card-min: calc((100vw - 250px - 2rem) / 7);
+	--grid-card-min: calc((100vw - 250px - 2rem) / 9);
 	/* --grid-card-min: 240px; */
 	/* --grid-card-row: 160px; */
-	--grid-card-row: calc((100vh - 70px - 5rem) / 4);
+	--grid-card-row: calc((100vh - 70px - 5rem) / 5);
 	--grid-card-gap: 1rem;
 	--grid-card-pad: 1rem;
 	/* Latar grid sedikit cerah supaya kad “soft 3D” kontras tanpa keras */

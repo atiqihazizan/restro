@@ -1,4 +1,5 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+// Tambah modul `screen` ke dalam import
+const { app, BrowserWindow, Menu, ipcMain, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
@@ -230,25 +231,32 @@ function attachContextMenu(win) {
 }
 
 function createWindow() {
-  /** titleBarOverlay hanya disokong dengan baik pada macOS / Win11+ dengan tetingkap tanpa frame; elakkan pada Windows lama. */
+  // 1. Dapatkan saiz kawasan kerja yang tidak dilindungi oleh bar tugasan (taskbar)
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height, x, y } = primaryDisplay.workArea;
+
   const winOptions = {
-    width: 1920,
-    height: 1080,
-    frame: true,
-    fullscreen: true,
-    fullscreenable: true,
+    x: x,              // Bermula pada penghujung kiri tanpa menindih apa-apa
+    y: y,              // Bermula pada penghujung atas
+    width: width,      // Menggunakan lebar ruang kerja penuh
+    height: height,    // Menggunakan tinggi ruang kerja penuh
+    show: false,       // Tetingkap disembunyikan sementara menunggu kandungan dimuat
+    frame: false,       // Kekalkan border sistem jika dikehendaki
+    resizable: true,   // Mesti 'true' untuk mengelakkan masalah isMaximized() yang ralat (bug)
     autoHideMenuBar: true,
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.cjs'),
     },
   };
+
   if (process.platform === 'darwin') {
     winOptions.titleBarOverlay = {
       color: '#2c3e50',
       symbolColor: '#ffffff',
     };
   }
+
   const win = new BrowserWindow(winOptions);
 
   attachContextMenu(win);
@@ -273,6 +281,11 @@ function createWindow() {
           )
       );
     });
+  });
+
+  // 2. Apabila tetingkap sedia, baru dipaparkan secara kemas
+  win.once('ready-to-show', () => {
+    win.show();
   });
 }
 

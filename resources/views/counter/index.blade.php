@@ -66,8 +66,29 @@
 		<div id="{{ $n->id }}" class="page-frame bg-black d-none animation faster fade-in">@includeIf('counter.' . $n->id)</div>
 		@endforeach
 	</main>
-
+	
 	@stack('modal')
+
+	{{-- Modal boleh dikongsi: padam resit (Sales) dan unlock discount (POS) --}}
+	<div class="modal fade top" id="credentialModal" tabindex="-1" aria-labelledby="credentialModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content rounded-9">
+				<div class="modal-header border-0 pb-0">
+					<h5 class="modal-title fw-bold text-black" id="credentialModalLabel">Confirm password</h5>
+					<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body pt-3">
+					<label class="form-label" for="credentialModalPassword">Password</label>
+					<input type="password" class="form-control" id="credentialModalPassword" autocomplete="off">
+					<p id="credentialModalError" class="text-danger small mt-2 mb-0 d-none"></p>
+				</div>
+				<div class="modal-footer border-0 pt-0">
+					<button type="button" class="btn btn-secondary rounded-5" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-success rounded-5" id="credentialModalConfirm">Confirm</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<script type="text/javascript" src="{{URL::asset('/js/plugin/mdb.min.js')}}"></script>
 	<script type="text/javascript" src="{{URL::asset('/js/plugin/scripts.bundle.js')}}"></script>
@@ -81,6 +102,90 @@
 		axios.defaults.headers = {
 			'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
 		}
+		window.RESTRO_CREDENTIAL_VERIFY_URL = {!! json_encode(route('restro.credential.verify')) !!};
+		window.RESTRO_CREDENTIAL_SAVE_URL = {!! json_encode(route('restro.credential.save')) !!};
+
+		/** Popup password satu kali akses untuk padam resit atau unlock discount. */
+		window.openRestroCredentialModal = (function () {
+			var credentialModalEl = document.getElementById('credentialModal');
+			var credentialModal = null;
+			var credentialSuccessCb = null;
+
+			function getModalInstance() {
+				if (!credentialModalEl) return null;
+				if (!credentialModal) credentialModal = new mdb.Modal(credentialModalEl, { backdrop: 'static', keyboard: false });
+				return credentialModal;
+			}
+
+			function wireOnce() {
+				if (!credentialModalEl || credentialModalEl.getAttribute('data-cred-modal-wired') === '1') return;
+				credentialModalEl.setAttribute('data-cred-modal-wired', '1');
+				function credentialModalBlurOn() {
+					document.body.classList.add('credential-modal-blur');
+				}
+				function credentialModalBlurOff() {
+					document.body.classList.remove('credential-modal-blur');
+				}
+				['show.bs.modal', 'show.mdb.modal'].forEach(function (ev) {
+					credentialModalEl.addEventListener(ev, credentialModalBlurOn);
+				});
+				['hidden.bs.modal', 'hidden.mdb.modal'].forEach(function (ev) {
+					credentialModalEl.addEventListener(ev, credentialModalBlurOff);
+				});
+				var pwdInput = document.getElementById('credentialModalPassword');
+				var errEl = document.getElementById('credentialModalError');
+
+				document.getElementById('credentialModalConfirm').addEventListener('click', async function () {
+					errEl.classList.add('d-none');
+					errEl.textContent = '';
+					var pw = pwdInput.value;
+					if (!pw) {
+						errEl.textContent = 'Sila masukkan password.';
+						errEl.classList.remove('d-none');
+						return;
+					}
+					try {
+						var res = await axios.post(window.RESTRO_CREDENTIAL_VERIFY_URL, { password: pw });
+						if (res.data && res.data.success) {
+							var cb = credentialSuccessCb;
+							credentialSuccessCb = null;
+							pwdInput.value = '';
+							getModalInstance().hide();
+							if (typeof cb === 'function') cb();
+						}
+					} catch (err) {
+						var msg = (err.response && err.response.data && err.response.data.message)
+							? err.response.data.message
+							: 'Kata laluan tidak sah.';
+						errEl.textContent = msg;
+						errEl.classList.remove('d-none');
+					}
+				});
+				pwdInput.addEventListener('keydown', function (ev) {
+					if (ev.key === 'Enter') {
+						ev.preventDefault();
+						document.getElementById('credentialModalConfirm').click();
+					}
+				});
+			}
+
+			return function (onSuccess) {
+				wireOnce();
+				credentialSuccessCb = onSuccess || null;
+				var pwdInput = document.getElementById('credentialModalPassword');
+				var errEl = document.getElementById('credentialModalError');
+				if (pwdInput) pwdInput.value = '';
+				if (errEl) {
+					errEl.textContent = '';
+					errEl.classList.add('d-none');
+				}
+				getModalInstance().show();
+				setTimeout(function () {
+					if (pwdInput) pwdInput.focus();
+				}, 300);
+			};
+		})();
+
 		initTabs('.nav-link-page', '.page-frame', function(n) {
 			const href = n.getAttribute('href');
 			document.querySelectorAll('.sidenav').forEach(function(s) {
@@ -89,7 +194,8 @@
 			})
 			let btnCart = document.getElementById('itemcart');
 			if (!btnCart.classList.contains('d-none')) btnCart.classList.add('d-none');
-		})
+		});
+
 
 		function pageNav(href) {
 			pageChange('#' + href, '.page-frame', '.nav-link-page')
@@ -97,7 +203,8 @@
 		pageNav('pos')
 		
 		if (typeof pahoMQTT === 'function') {
-			pahoMQTT();
+			const _mqHub = pahoMQTT();
+			if (_mqHub && typeof _mqHub.connect === 'function') _mqHub.connect();
 		}
 
 		function confirmElectronExit() {

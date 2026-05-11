@@ -68,9 +68,17 @@
 		background-color: rgba(0, 123, 255, 0.2) !important;
 		box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5) !important;
 	}
+	.text-bigger {
+		font-size: 3.5rem !important;
+		font-weight: 600;
+		/* color: #007bff; */
+	}
+	.input-field-editable.text-bigger {
+		padding: 0! important;
+	}
 </style>
 <div class="modal top fade" id="calculate" tabindex="-1" aria-labelledby="PayBillModalLabel">
-	<div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 784px">
+	<div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 814px">
 		<div class="modal-content rounded-9">
 			<div class="modal-header border-0 pb-0">
 				<h3 class="modal-title fw-bold text-black">Pay Bill</h3>
@@ -78,7 +86,7 @@
 			</div>
 			<div class="modal-body">
 				<div class="row">
-					<div class="col-md-6">
+					<div class="col-md-5">
 						<div class="pos-calculate" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
 							<button type="button" class="btn btn-num" data-num-val="7">7</button>
 							<button type="button" class="btn btn-num" data-num-val="8">8</button>
@@ -93,28 +101,36 @@
 							<button type="button" class="btn btn-num" data-num-val="0">0</button>
 							<button type="button" class="btn btn-num" data-num-val=".">.</button>
 						</div>
+						<div class="col-12 mt-3">
+							<button class="btn btn-success btn-lg btn-block w-100" to-ledger>Enter</button>
+							<button class="btn btn-danger btn-lg btn-block w-100" data-dismiss="modal">Cancel</button>
+						</div>
 					</div>
-					<div class="col-md-6">
+					<div class="col-md-7 d-flex flex-column justify-content-between">
 						<div class="table-amount" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; color: #333;">
-							<div class="fs-2 pt-0">Tax <small class="fs-5" data-tax-percent>(0%)</small></div>
-							<div class="fs-2 pt-0 text-right text-black input-field-editable input-active" data-tax>0.00</div>
-							<div class="fs-2 pt-0">Net</div>
-							<div class="fs-2 pt-0 text-right"><span class="text-black" data-total>0.00</span></div>
+							<div class="fs-2 pt-0">Sub Total</div>
+							<div class="fs-2 pt-0 text-right"><span class="text-black" data-subtotal>0.00</span></div>
 							<div class="fs-2 pt-0">Discount <small class="fs-5" data-disc-percent>(0%)</small></div>
 							<div class="fs-2 pt-0 text-right text-black input-field-editable" data-disc>0.00</div>
-							<div class="fs-2 pt-0">Total</div>
-							<div class="fs-2 pt-0 text-right"><span class="text-black" data-grand>0.00</span></div>
-							<div class="fs-2 pt-0">Paid</div>
-							<div class="fs-2 pt-0 text-right text-black input-field-editable" data-pay>0.00</div>
-							<div class="fs-2 pt-0">Balance</div>
-							<div class="fs-2 pt-0 text-right"><span class="text-black" data-bal>0.00</span></div>
+							<div class="fs-2 pt-0">Tax <small class="fs-5" data-tax-percent>(0%)</small></div>
+							<div class="fs-2 pt-0 text-right text-black input-field-editable" data-tax>0.00</div>
+							<!-- <div class="fs-2 pt-0">Net</div>
+							<div class="fs-2 pt-0 text-right"><span class="text-black" data-total>0.00</span></div> -->
+						</div>
+						<div class="table-amount" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; color: #333;">
+							<div class="fs-2 pt-0 text-bigger">Total</div>
+							<div class="fs-2 pt-0 text-right"><span class="text-black text-bigger" data-grand>0.00</span></div>
+							<div class="fs-2 pt-0 text-bigger">Paid</div>
+							<div class="fs-2 pt-0 text-right text-black input-field-editable input-active text-bigger" data-pay>0.00</div>
+							<div class="fs-2 pt-0 text-bigger">Bal</div>
+							<div class="fs-2 pt-0 text-right"><span class="text-black text-bigger" data-bal>0.00</span></div>
 						</div>
 					</div>
 				</div>
-				<div class="row d-flex justify-content-between gap-1 px-3 mt-3">
+				<!-- <div class="row d-flex justify-content-between gap-1 px-3 mt-3">
 					<button class="btn btn-success btn-lg btn-block" to-ledger>Enter</button>
 					<button class="btn btn-danger btn-lg btn-block" data-dismiss="modal">Cancel</button>
-				</div>
+				</div> -->
 
 			</div>
 		</div>
@@ -131,8 +147,9 @@
 		var bill = {}
 		var masterEl;
 		var modalEl;
+		window.discountFieldUnlocked = false
 
-		async function initTable() {
+		async function refreshDeskGrid() {
 			let res = await axios.get(APP_URL + 'ordering/?getpos=true')
 			let tables = res.data.table ?? [];
 			let tableContainer = pagePos.querySelector('[data-table-list]')
@@ -140,9 +157,9 @@
 			tableContainer.innerHTML = tables.map((t, n) => {
 				const label = String(t.name)
 				const split = label.match(/^(.*?)\s+(\d+)$/)
-				const titleHtml = split
-					? `<span class="pos-table-line pos-table-line--label">${split[1]}</span><span class="pos-table-line pos-table-line--num">${split[2]}</span>`
-					: `<span class="pos-table-line pos-table-line--single">${label}</span>`
+				const titleHtml = split ?
+					`<span class="pos-table-line pos-table-line--label">${split[1]}</span><span class="pos-table-line pos-table-line--num">${split[2]}</span>` :
+					`<span class="pos-table-line pos-table-line--single">${label}</span>`
 				const rawSts = Number(t.sts)
 				const s = Number.isFinite(rawSts) ? Math.min(4, Math.max(0, Math.floor(rawSts))) : 0
 				return `<a data-id="${t.id}" data-order-id="${t.order_id}" data-name="${t.name}" data-sts="${s}" class="view-order pos-table-tile h-100 w-100 d-block text-decoration-none text-capitalize">
@@ -168,7 +185,10 @@
 					pagePos.querySelector('#take-order').removeAttribute('disabled')
 					document.querySelector('meta[name="table"]').setAttribute('content', idx)
 
-					if (oid == 0) return resetBtnPay()
+					if (oid == 0) {
+						resetBtnPay()
+						return 
+					}
 					bill.oid = oid
 					drawReceipt()
 				})
@@ -217,8 +237,12 @@
 					axios.delete(APP_URL + 'ordering/' + idx).then(function(res) {
 						let data = res.data;
 						if (data.success ?? false) {
-							if (data.count > 0) return drawReceipt();
-							return resetBtnPay()
+							if (data.count > 0) {
+								drawReceipt();
+							} else {
+								resetBtnPay();
+								refreshDeskGrid();
+							}
 						}
 					})
 				})
@@ -229,7 +253,8 @@
 		function initPayment() {
 			const payAmountMax = 99999999.99
 			let modalCalc = document.getElementById('calculate')
-			let inputTotal = modalCalc.querySelector('[data-total]')
+			// let inputTotal = modalCalc.querySelector('[data-total]')
+			let inputSubtotal = modalCalc.querySelector('[data-subtotal]')
 			let inputGrand = modalCalc.querySelector('[data-grand]')
 			let inputPay = modalCalc.querySelector('[data-pay]')
 			let inputBal = modalCalc.querySelector('[data-bal]')
@@ -237,6 +262,42 @@
 			let inputDisc = modalCalc.querySelector('[data-disc]')
 			let inputAmt;
 			let calcTimeout = null;
+
+			function constrainKeyPayDecimals(raw, maxFrac) {
+				if (raw === null || raw === undefined) {
+					return '';
+				}
+				var s = String(raw).replace(/[^\d.]/g, '');
+				if (s.indexOf('.') === -1) {
+					return s;
+				}
+				var firstDot = s.indexOf('.');
+				var intPart = s.slice(0, firstDot);
+				var frac = s.slice(firstDot + 1).replace(/\./g, '');
+				frac = frac.slice(0, maxFrac);
+				return intPart + '.' + frac;
+			}
+
+			function parseFiniteFromKeypay(k) {
+				if (!k || k === '.' || /\.$/.test(k)) {
+					return NaN;
+				}
+				var n = parseFloat(k);
+				return isFinite(n) ? n : NaN;
+			}
+
+			function paidDisplayWhileTyping(keyPay) {
+				keyPay = constrainKeyPayDecimals(keyPay, 2);
+				if (!keyPay) {
+					return currency(0);
+				}
+				var trailingDot = /\.$/.test(keyPay);
+				var nBase = trailingDot ? parseFloat(keyPay.slice(0, -1) || '0') : parseFloat(keyPay);
+				if (trailingDot) {
+					return currency(nBase).replace(/(\.\d{2})$/, '.');
+				}
+				return currency(nBase);
+			}
 
 			async function recalculateFromServer() {
 				if (!bill.oid) return;
@@ -253,7 +314,7 @@
 						bill.grand = res.data.grand;
 
 						inputTax.textContent = currency(bill.tax);
-						inputTotal.textContent = currency(bill.net);
+						// inputTotal.textContent = currency(bill.net);
 						inputDisc.textContent = currency(bill.disc);
 						inputGrand.textContent = currency(bill.grand);
 
@@ -301,51 +362,86 @@
 						return
 					}
 					if (v === '.') {
-						if (keyPay.toString().lastIndexOf('.') != -1) return;
-					}
-					keyPay += v.toString()
-					num = keyPay * 1
-					if (inputAmt.hasAttribute('data-tax')) {
-						num = Math.round(keyPay * 1)
-						if (isNaN(num)) {
-							num = 0;
-							keyPay = '';
+						if (String(keyPay).lastIndexOf('.') !== -1) {
+							return;
 						}
-						if (num > 100) num = 100
-						bill.taxnum = num;
-						modalCalc.querySelector('[data-tax-percent]').textContent = '(' + num + '%)'
-
-						if (calcTimeout) clearTimeout(calcTimeout);
-						calcTimeout = setTimeout(() => recalculateFromServer(), 300);
 					}
-					if (inputAmt.hasAttribute('data-disc')) {
-						num = Math.round(keyPay * 1)
-						if (isNaN(num)) {
-							num = 0;
-							keyPay = '';
-						}
-						if (num > 100) num = 100
-						bill.discnum = num;
-						modalCalc.querySelector('[data-disc-percent]').textContent = '(' + num + '%)'
+					keyPay += v.toString();
 
-						if (calcTimeout) clearTimeout(calcTimeout);
-						calcTimeout = setTimeout(() => recalculateFromServer(), 300);
+					var isTax = inputAmt.hasAttribute('data-tax');
+					var isDisc = inputAmt.hasAttribute('data-disc');
+					var isPct = isTax || isDisc;
+					var maxFrac = isPct ? 4 : 2;
+					keyPay = constrainKeyPayDecimals(keyPay, maxFrac);
+
+					num = parseFiniteFromKeypay(keyPay);
+
+					var pctLabelEl = null;
+					if (isTax) {
+						pctLabelEl = modalCalc.querySelector('[data-tax-percent]');
+					} else if (isDisc) {
+						pctLabelEl = modalCalc.querySelector('[data-disc-percent]');
+					}
+
+					if (isTax) {
+						if (isFinite(num) && num > 100) {
+							keyPay = keyPay.slice(0, -1);
+							return;
+						}
+						if (isFinite(num)) {
+							bill.taxnum = num;
+							pctLabelEl.textContent = '(' + num + '%)';
+							if (calcTimeout) clearTimeout(calcTimeout);
+							calcTimeout = setTimeout(function () { recalculateFromServer(); }, 300);
+						} else {
+							var showPct = keyPay === '.' ? '0.' : keyPay;
+							pctLabelEl.textContent = '(' + showPct + '%)';
+						}
+					}
+					if (isDisc) {
+						if (isFinite(num) && num > 100) {
+							keyPay = keyPay.slice(0, -1);
+							return;
+						}
+						if (isFinite(num)) {
+							bill.discnum = num;
+							pctLabelEl.textContent = '(' + num + '%)';
+							if (calcTimeout) clearTimeout(calcTimeout);
+							calcTimeout = setTimeout(function () { recalculateFromServer(); }, 300);
+						} else {
+							var showPct2 = keyPay === '.' ? '0.' : keyPay;
+							pctLabelEl.textContent = '(' + showPct2 + '%)';
+						}
 					}
 					if (inputAmt.hasAttribute('data-pay')) {
-						if (isNaN(num)) {
-							num = 0;
-							keyPay = '';
+						var trailingPayDot = /\.$/.test(keyPay);
+						var payParsed;
+						if (keyPay === '' || keyPay === '.') {
+							payParsed = 0;
+						} else if (trailingPayDot) {
+							payParsed = parseFloat(keyPay.slice(0, -1) || '0');
+						} else {
+							payParsed = parseFloat(keyPay);
 						}
-						if (num > payAmountMax) {
-							keyPay = keyPay.slice(0, -1)
-							return
+						if (!isFinite(payParsed)) {
+							payParsed = 0;
 						}
-						bill.amt = num;
-						inputAmt.textContent = currency(bill.amt)
-						inputPay = modalCalc.querySelector('[data-pay]')
-
-						bill.bal = bill.grand - bill.amt
-						inputBal.textContent = currency(bill.bal)
+						if (keyPay === '.' || keyPay === '') {
+							inputAmt.textContent = paidDisplayWhileTyping(keyPay || '.');
+							bill.amt = 0;
+							bill.bal = bill.grand;
+							inputBal.textContent = currency(bill.bal);
+							return;
+						}
+						if (payParsed > payAmountMax) {
+							keyPay = keyPay.slice(0, -1);
+							return;
+						}
+						bill.amt = payParsed;
+						inputAmt.textContent = trailingPayDot ? paidDisplayWhileTyping(keyPay) : currency(bill.amt);
+						inputPay = modalCalc.querySelector('[data-pay]');
+						bill.bal = bill.grand - bill.amt;
+						inputBal.textContent = currency(bill.bal);
 					}
 				})
 			})
@@ -375,6 +471,7 @@
 						publishOrderPaid(bill.oid);
 					}
 
+					refreshDeskGrid();
 					resetBtnPay()
 					resetPanelPay()
 				}).catch(e => console.error(e.message))
@@ -383,7 +480,8 @@
 			function resetPanelPay() {
 				keyPay = ''
 				const sub = Number(bill.total) || 0
-				inputTotal.textContent = currency(sub);
+				inputSubtotal.textContent = currency(sub);
+				// inputTotal.textContent = currency(sub);
 				inputGrand.textContent = currency(sub);
 				inputPay.textContent = currency(0);
 				inputTax.textContent = currency(0);
@@ -400,8 +498,10 @@
 				bill.taxnum = 0;
 				bill.discnum = 0;
 
+				window.discountFieldUnlocked = false
+
 				modalEl.querySelectorAll('.input-active').forEach(e => e.classList.remove('input-active'))
-				modalEl.querySelector('[data-tax]').classList.add('input-active')
+				modalEl.querySelector('[data-pay]').classList.add('input-active')
 			}
 		}
 
@@ -421,7 +521,7 @@
 				if (response.status === 200) {
 					if (response.data === 1) {
 						pagePos.querySelector('[data-table-name]').innerHTML = '&nbsp;'
-						initTable().then(() => resetBtnPay())
+						refreshDeskGrid().then(() => resetBtnPay())
 					}
 					// Reconnect in 10 second
 					await new Promise(resolve => setTimeout(resolve, sec));
@@ -450,11 +550,17 @@
 					backdrop: 'static',
 					keyboard: false
 				})
+				function blurPayBillModalFocus() {
+					var ae = document.activeElement
+					if (ae && modalEl.contains(ae)) ae.blur()
+				}
+				modalEl.addEventListener('hide.bs.modal', blurPayBillModalFocus)
+				modalEl.addEventListener('hide.mdb.modal', blurPayBillModalFocus)
 				masterEl = pagePos.querySelector('.billing-master')
 
-				initTable()
+				refreshDeskGrid()
 				initPayment()
-				subscribe();
+				// subscribe();
 				pagePos.querySelector('#take-order').addEventListener('click', function(e) {
 					e.preventDefault()
 					document.getElementById('itemcart').classList.remove('d-none')
@@ -468,10 +574,28 @@
 					this.classList.add('input-active')
 				})
 				modalEl.querySelector('[data-disc]').addEventListener('click', function(e) {
-					modalEl.querySelectorAll('.input-active').forEach(e => e.classList.remove('input-active'))
-					keyPay = '';
 					e.preventDefault()
-					this.classList.add('input-active')
+					keyPay = ''
+					var discEl = this
+
+					function activateDisc() {
+						modalEl.querySelectorAll('.input-active').forEach(function(el) {
+							el.classList.remove('input-active')
+						})
+						discEl.classList.add('input-active')
+					}
+					if (window.discountFieldUnlocked) {
+						activateDisc()
+						return
+					}
+					if (typeof window.openRestroCredentialModal !== 'function') {
+						alert('Credential modal tidak tersedia.')
+						return
+					}
+					window.openRestroCredentialModal(function() {
+						window.discountFieldUnlocked = true
+						activateDisc()
+					})
 				})
 				modalEl.querySelector('[data-pay]').addEventListener('click', function(e) {
 					modalEl.querySelectorAll('.input-active').forEach(e => e.classList.remove('input-active'))
@@ -508,7 +632,10 @@
 			},
 			reload: async function(res) {
 				bill.oid = res.data.id
-				initTable().then(() => document.querySelector('.nav-link-page.nav-counter[href="#pos"]').click())
+				refreshDeskGrid().then(() => {
+					document.querySelector('.nav-link-page.nav-counter[href="#pos"]').click()
+					drawReceipt();
+				})
 			},
 			data: bill,
 		}

@@ -54,8 +54,10 @@ Route::group(['prefix'=>'ordering'],function(){
 });
 
 Route::put('/restro/{restro}',[\App\Http\Controllers\RestroController::class,'update'])->name('company.update');
+Route::post('/restro/credential/verify', [\App\Http\Controllers\RestroController::class, 'verifyCredential'])->name('restro.credential.verify');
+Route::post('/restro/credential/save', [\App\Http\Controllers\RestroController::class, 'saveCredential'])->name('restro.credential.save');
 
-Route::get('/kitchen', function() {
-    return view('kitchen.index');
-})->name('kitchen.index');
+// Route::get('/kitchen', function() {
+//     return view('kitchen.index');
+// })->name('kitchen.index');
 

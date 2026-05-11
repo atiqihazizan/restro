@@ -1,8 +1,8 @@
 {{-- Kandungan dalaman #confirm_order — dikongsi dock tetap & drawer sidenav --}}
 @php
-	$asDrawer = $asDrawer ?? false;
+$asDrawer = $asDrawer ?? false;
 @endphp
-<div id="scrollOrderContainer" class="{{ $asDrawer ? '' : 'order-cart-dock__scroll' }}"@if($asDrawer) style="height: 100vh"@endif>
+<div id="scrollOrderContainer" class="{{ $asDrawer ? '' : 'order-cart-dock__scroll' }}" @if($asDrawer) style="height: 100vh" @endif>
 	<table class="order-item table-sm table-borderless mt-3 text-light">
 		<tbody class="order-item-master d-none">
 			<tr class="rowitem" fid="">
@@ -34,6 +34,12 @@
 				<button type="button" class="btn btn-lg btn-success fw-400 fs-5 btn-block py-3 rounded-0 shadow-0 text-capitalize"
 					id="confirm-order-button"
 					@if($asDrawer) data-toggle="sidenav" data-target="#confirm_order" @endif>Finish Ordering</button>
+			</th>
+		</tr>
+		<tr>
+			<th colspan="2" class="p-0">
+				<button type="button" class="btn btn-lg btn-danger fw-400 fs-5 btn-block py-3 rounded-0 shadow-0 text-capitalize"
+					id="cancel-order-flow-button">Cancel Order</button>
 			</th>
 		</tr>
 	</table>

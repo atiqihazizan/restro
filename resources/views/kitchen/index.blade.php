@@ -169,55 +169,15 @@
         const MQTT_HOST = 'localhost';
         const MQTT_PORT = 1884;
         const MQTT_TOPIC = 'kitchen/orders';
-        
+
         let mqttClient = null;
         let activeOrders = {};
 
-        function updateTime() {
-            document.getElementById('current-time').textContent = moment().format('HH:mm:ss');
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        function connectMQTT() {
-            try {
-                const clientId = 'kitchen_' + Math.random().toString(16).substr(2, 8);
-                mqttClient = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, clientId);
-                
-                mqttClient.onConnectionLost = function(response) {
-                    console.log('MQTT Connection Lost:', response.errorMessage);
-                    document.getElementById('mqtt-status').className = 'connection-status disconnected';
-                    setTimeout(connectMQTT, 5000);
-                };
-                
-                mqttClient.onMessageArrived = function(message) {
-                    console.log('MQTT Message:', message.payloadString);
-                    try {
-                        const data = JSON.parse(message.payloadString);
-                        handleOrderUpdate(data);
-                    } catch (e) {
-                        console.error('Parse error:', e);
-                    }
-                };
-                
-                mqttClient.connect({
-                    onSuccess: function() {
-                        console.log('MQTT Connected');
-                        document.getElementById('mqtt-status').className = 'connection-status connected';
-                        mqttClient.subscribe(MQTT_TOPIC);
-                        loadActiveOrders();
-                    },
-                    onFailure: function(err) {
-                        console.error('MQTT Connection Failed:', err);
-                        document.getElementById('mqtt-status').className = 'connection-status disconnected';
-                        setTimeout(connectMQTT, 5000);
-                    }
-                });
-            } catch (e) {
-                console.error('MQTT Init Error:', e);
-                document.getElementById('mqtt-status').className = 'connection-status disconnected';
-            }
-        }
+        // function updateTime() {
+        //     document.getElementById('current-time').textContent = moment().format('HH:mm:ss');
+        // }
+        // setInterval(updateTime, 1000);
+        // updateTime();
 
         function loadActiveOrders() {
             fetch(APP_URL + 'ordering/?getpos=true')
@@ -313,8 +273,7 @@
             }
         }
 
-        connectMQTT();
-        setInterval(() => renderOrders(), 60000);
+        loadActiveOrders();
     </script>
 </body>
 </html>

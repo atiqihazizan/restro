@@ -2,16 +2,16 @@
 <div id="menu-container" class="ordering-menu-shell">
 	<div class="ordering-menu-row">
 		<div id="listcate">
-			<div id="scrollCateContainer">
-				<div class="cate-scroll-stack" id="cate_list" role="navigation" aria-label="Kategori menu">
-					@foreach($cate??[] as $c)
-					@continue($c->menu->count() == 0)
-					<a class="cate-card cate-link" href="#" idx="{{ $c->id }}" role="button">
-						<span class="cate-card-icon">{!! $c->icon??'' !!}</span>
-						<span class="cate-card-label">{{ $c->name }}</span>
-					</a>
-					@endforeach
-				</div>
+			<!-- <div id="scrollCateContainer">
+			</div> -->
+			<div class="cate-scroll-stack" id="cate_list" role="navigation" aria-label="Kategori menu">
+				@foreach($cate??[] as $c)
+				@continue($c->menu->count() == 0)
+				<a class="cate-card cate-link" href="#" idx="{{ $c->id }}" role="button">
+					<span class="cate-card-icon">{!! $c->icon??'' !!}</span>
+					<span class="cate-card-label">{{ $c->name }}</span>
+				</a>
+				@endforeach
 			</div>
 		</div>
 		<div id="listmenu" class="bg-black">
@@ -276,6 +276,22 @@
 				firstCate.classList.add('is-active')
 			}
 		}
+
+		function exitOrderingToTableScreen() {
+			const confirmEl = document.getElementById('confirm_order')
+			if (confirmEl && typeof mdb !== 'undefined' && mdb.Sidenav) {
+				const sid = mdb.Sidenav.getInstance(confirmEl)
+				if (sid) sid.hide()
+			}
+			const itemcart = document.getElementById('itemcart')
+			if (typeof pageNav === 'function' && itemcart) {
+				itemcart.classList.add('d-none')
+				pageNav('pos')
+				return
+			}
+			const pagehome = document.getElementById('pagehome')
+			if (pagehome) pagehome.click()
+		}
 		return {
 			init: function() {
 				initCateMenu()
@@ -319,6 +335,15 @@
 						})
 						.catch(e => console.error(e.message))
 				})
+				const cancelFlowBtn = document.getElementById('cancel-order-flow-button')
+				if (cancelFlowBtn) {
+					cancelFlowBtn.addEventListener('click', function(e) {
+						e.preventDefault()
+						clearOrder()
+						finalize(0)
+						exitOrderingToTableScreen()
+					})
+				}
 			},
 			reset: function() {
 				clearOrder()

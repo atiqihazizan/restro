@@ -27,6 +27,10 @@ body { position: relative}
 	background-color: var(--card-grid-canvas) !important;
 }
 
+#credentialModal {
+	z-index: 10050 !important;
+}
+
 /*** page 1 — senarai meja pelanggan ***/
 .tables {
 	margin: 0 auto;
@@ -131,10 +135,12 @@ body { position: relative}
 }
 
 #listcate {
-	flex: 0 0 168px;
+	/* flex: 0 0 168px;
 	width: 168px;
 	min-width: 168px;
-	max-width: 168px;
+	max-width: 168px; */
+	flex: 0 0 auto;
+	align-self: stretch;
 	background-color: #333;
 	box-sizing: border-box;
 }
@@ -187,7 +193,8 @@ body { position: relative}
 	-webkit-overflow-scrolling: touch;
 	padding: 0 0.5rem;
 	box-sizing: border-box;
-	height: calc(100vh - 70px - 52px - 130px) !important;
+	/* height: calc(100vh - 70px - 52px - 130px) !important; */
+	height: calc(100vh - 70px - 120px - 130px) !important;
 }
 
 .order-cart-dock__footer {
@@ -213,12 +220,19 @@ body { position: relative}
 
 /* Bar kategori: tanpa ul/li — stack flex + kad “timbul” 3D */
 .cate-scroll-stack {
-	display: flex;
-	flex-direction: column;
+	/* display: flex; */
+	/* flex-direction: column; */
 	align-items: center;
 	gap: 1rem;
 	padding: 0.85rem 0.45rem 1.25rem;
 	box-sizing: border-box;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	/* width: 450px; */
+	width: max-content;
+	/* min-width: 146px; */
+	min-width: 409px;
+	/* max-width: min(146px, 100vw); */
 }
 
 .cate-card.cate-link {
@@ -345,6 +359,6 @@ body { position: relative}
 .order-item td table { width: 100% }
 .order-item td table tr:first-child td { padding: 0 1rem .5rem 0; vertical-align: middle }
 .order-item td table tr:not(:first-child) td { padding: .5rem 1rem 0rem 0; vertical-align: middle }
-.sideright-footer { height: 130px }
+/* .sideright-footer { height: 130px } */
 .sum-total { background-color:dimgrey }
 /*a[data-value] { height: 200px }*/

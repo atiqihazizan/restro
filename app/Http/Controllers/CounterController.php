@@ -113,16 +113,21 @@ class CounterController extends Controller
 
 	public function calculate(Billing $bill, Request $request)
 	{
-		$taxnum = (int)($request->taxnum ?? 0);
-		$discnum = (int)($request->discnum ?? 0);
-		
-		if ($taxnum < 0 || $taxnum > 100) $taxnum = 0;
-		if ($discnum < 0 || $discnum > 100) $discnum = 0;
+		$taxnum = round((float)($request->taxnum ?? 0), 4);
+		$discnum = round((float)($request->discnum ?? 0), 4);
+
+		if ($taxnum < 0 || $taxnum > 100) {
+			$taxnum = 0;
+		}
+		if ($discnum < 0 || $discnum > 100) {
+			$discnum = 0;
+		}
 		
 		$subtotal = (float)$bill->subtotal;
 		$taxamt = ($subtotal * $taxnum) / 100;
 		$net = $subtotal + $taxamt;
-		$discamt = ($net * $discnum) / 100;
+		// Disakaun dikenakan atas subtotal (jumlah jualan), bukan atas subtotal + cukai
+		$discamt = ($subtotal * $discnum) / 100;
 		$grand = $net - $discamt;
 		
 		return response()->json([
